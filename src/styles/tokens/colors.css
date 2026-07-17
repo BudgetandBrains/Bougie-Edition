@@ -1,0 +1,59 @@
+:root {
+  --ivory-50:  #FFFFFF;
+  --ivory-100: #FAFAF8;
+  --ivory-200: #F0F0EC;
+  --taupe-300: #E4E3DD;
+  --taupe-400: #C9C8C1;
+  --stone-500: #8E8D86;
+  --stone-600: #5F5E58;
+  --ink-700:   #2C2B27;
+  --ink-800:   #161513;
+  --ink-900:   #0A0A08;
+
+  --teal-soft: #DCEAE8;
+  --teal-300:  #5AA39D;
+  --teal-500:  #117C77;
+  --teal-600:  #0C5F5B;
+
+  --gold-soft: var(--teal-soft);
+  --gold-300:  var(--teal-300);
+  --gold-500:  var(--teal-500);
+  --gold-600:  var(--teal-600);
+
+  --cognac-soft: #ECE3D8;
+  --cognac-500:  #8A6A4C;
+  --cognac-600:  #5C4530;
+
+  --positive: #3F6F5C;
+  --positive-soft: #E1EBE5;
+  --critical: #883A33;
+  --critical-soft: #F0DEDB;
+  --notice:   #9A7C3E;
+  --notice-soft: #F2E9CF;
+
+  --surface-page:    var(--ivory-100);
+  --surface-canvas:  var(--ivory-50);
+  --surface-card:    var(--ivory-50);
+  --surface-sunk:    var(--ivory-200);
+  --surface-ink:     var(--ink-900);
+  --surface-overlay: rgba(10, 10, 8, 0.55);
+
+  --text-display:    var(--ink-900);
+  --text-heading:    var(--ink-800);
+  --text-body:       var(--ink-700);
+  --text-muted:      var(--stone-600);
+  --text-faint:      var(--stone-500);
+  --text-on-ink:     var(--ivory-100);
+  --text-on-accent:  var(--ivory-50);
+  --text-on-gold:    var(--ivory-50);
+  --text-accent:     var(--teal-600);
+
+  --border-hairline: var(--taupe-300);
+  --border-strong:   var(--taupe-400);
+  --border-ink:      var(--ink-900);
+  --accent:          var(--teal-500);
+  --accent-hover:    var(--teal-600);
+  --accent-wash:     var(--teal-soft);
+
+  --focus-ring: rgba(17, 124, 119, 0.40);
+}

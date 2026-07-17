@@ -1,0 +1,6 @@
+.legal{max-width:70ch}
+.legal h3{font-family:var(--font-display);font-weight:400;font-size:1.4rem;margin:44px 0 14px;letter-spacing:-.005em;color:var(--ink-900)}
+.legal h3:first-child{margin-top:0}
+.legal p{font-size:1rem;line-height:1.75;color:var(--text-body);margin:0 0 14px}
+.legal ul{margin:0 0 14px;padding-left:22px}
+.legal li{font-size:1rem;line-height:1.75;color:var(--text-body);margin-bottom:8px}

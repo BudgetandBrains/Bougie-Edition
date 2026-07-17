@@ -1,0 +1,39 @@
+.shop-toolbar{display:flex;justify-content:space-between;align-items:center;gap:20px 26px;flex-wrap:wrap;padding-bottom:24px;border-bottom:1px solid var(--border-hairline)}
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.chip{font:var(--t-label-m);letter-spacing:var(--track-label);text-transform:uppercase;padding:11px 18px;border:1px solid var(--border-hairline);border-radius:var(--radius-pill);background:transparent;color:var(--text-muted);cursor:pointer;transition:all var(--dur-base) var(--ease-luxe)}
+.chip:hover{border-color:var(--ink-900);color:var(--ink-900)}
+.chip.active{background:var(--ink-900);border-color:var(--ink-900);color:#fff}
+.toolbar-right{display:flex;align-items:center;gap:18px}
+.count{font:var(--t-label-m);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--text-faint);white-space:nowrap}
+
+.filters-btn{display:inline-flex;align-items:center;gap:10px;font:var(--t-label-m);letter-spacing:var(--track-label);text-transform:uppercase;padding:11px 18px;border:1px solid var(--ink-900);border-radius:var(--radius-pill);background:transparent;color:var(--ink-900);cursor:pointer;transition:all var(--dur-base) var(--ease-luxe)}
+.filters-btn:hover{background:var(--ink-900);color:#fff}
+.filters-btn svg{width:16px;height:16px;stroke-width:1.5}
+.filters-btn.open{background:var(--ink-900);color:#fff}
+.fbadge{min-width:19px;height:19px;padding:0 5px;border-radius:var(--radius-pill);background:var(--pop);color:#fff;font-size:10px;font-weight:600;display:none;place-items:center;line-height:1;font-family:var(--font-sans)}
+.fbadge.show{display:grid}
+
+.adv-panel{max-height:0;overflow:hidden;transition:max-height var(--dur-slow) var(--ease-luxe),opacity var(--dur-base) var(--ease-luxe);opacity:0;border-bottom:1px solid transparent}
+.adv-panel.open{max-height:640px;opacity:1;border-bottom:1px solid var(--border-hairline)}
+.adv-inner{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,72px);padding:34px 0 30px}
+@media (max-width:720px){.adv-inner{grid-template-columns:1fr;gap:28px}}
+.fg-head{display:flex;align-items:baseline;gap:12px;margin-bottom:18px}
+.fg-head h4{font-family:var(--font-display);font-weight:400;font-size:1.25rem;margin:0;color:var(--ink-900)}
+.fg-hint{font:var(--t-label-m);letter-spacing:var(--track-label-tight);text-transform:uppercase;color:var(--text-faint)}
+.fchips{display:flex;gap:9px;flex-wrap:wrap}
+.fchip{display:inline-flex;align-items:center;gap:8px;font-size:.86rem;letter-spacing:.01em;padding:9px 15px;border:1px solid var(--border-hairline);border-radius:var(--radius-pill);background:var(--surface-canvas);color:var(--text-muted);cursor:pointer;transition:all var(--dur-fast) var(--ease-luxe);font-family:var(--font-sans)}
+.fchip::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--border-strong);transition:background var(--dur-fast),transform var(--dur-fast)}
+.fchip:hover{border-color:var(--ink-900);color:var(--ink-900)}
+.fchip.on{background:var(--ink-900);border-color:var(--ink-900);color:#fff}
+.fchip.on::before{background:var(--pop);transform:scale(1.25)}
+
+.adv-actions{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:16px;padding-top:26px;border-top:1px solid var(--border-hairline);flex-wrap:wrap}
+.adv-summary{font-size:.9rem;color:var(--text-muted)}
+.adv-summary b{color:var(--ink-900);font-weight:500}
+.clear-btn{background:transparent;border:none;cursor:pointer;font:var(--t-label-m);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--text-muted);padding:8px 0;position:relative;transition:color var(--dur-fast)}
+.clear-btn:hover{color:var(--pop)}
+
+.ctx-note{display:inline-flex;align-items:center;gap:12px;margin:0 0 30px;padding:16px 22px;border-radius:var(--radius-xs);background:var(--pop-soft);color:#8A2A17;font:var(--t-label-m);letter-spacing:var(--track-label);text-transform:uppercase}
+.ctx-note::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--pop)}
+
+.noresults{padding:60px 0;text-align:center;color:var(--text-muted);font-family:var(--font-display);font-size:1.4rem}
