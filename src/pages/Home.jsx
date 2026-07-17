@@ -45,7 +45,7 @@ export default function Home() {
         <div className="hero-inner">
           <div className="container hero-c">
             <h1 className="hero-title hero-words">
-              <span className="mask"><span className="w" style={{ '--i': 0 }}>Timeless.</span></span>
+              <span className="mask"><span className="w" style={{ '--i': 0 }}>Timeless Luxury.</span></span>
               <span className="mask"><span className="w" style={{ '--i': 1 }}>Bougie.</span></span>
               <span className="mask"><span className="w accent" style={{ '--i': 2 }}>Iconic.</span></span>
               <span className="mask"><span className="w" style={{ '--i': 3 }}>Yours<span className="pt">.</span></span></span>
