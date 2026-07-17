@@ -15,6 +15,7 @@
 
 .adv-panel{max-height:0;overflow:hidden;transition:max-height var(--dur-slow) var(--ease-luxe),opacity var(--dur-base) var(--ease-luxe);opacity:0;border-bottom:1px solid transparent}
 .adv-panel.open{max-height:640px;opacity:1;border-bottom:1px solid var(--border-hairline)}
+@media (max-width:720px){.adv-panel.open{max-height:1400px}}
 .adv-inner{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,72px);padding:34px 0 30px}
 @media (max-width:720px){.adv-inner{grid-template-columns:1fr;gap:28px}}
 .fg-head{display:flex;align-items:baseline;gap:12px;margin-bottom:18px}
