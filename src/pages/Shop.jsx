@@ -6,11 +6,9 @@ import ProductCard from '../components/ProductCard';
 import { useCatalog } from '../context/useCatalog';
 import './shop.extra.css';
 
-const CATS = [
-  { val: 'bags', label: 'Bags' },
-  { val: 'watches', label: 'Watches' },
-  { val: 'belts', label: 'Belts & accessories' }
-];
+const CAT_LABELS = { bags: 'Bags', backpack: 'Backpacks', backpacks: 'Backpacks', jewelry: 'Jewellery', jewellery: 'Jewellery', novelty: 'Novelty', watches: 'Watches', belts: 'Belts & accessories', accessories: 'Accessories' };
+const catLabel = (v) => CAT_LABELS[v] || (v ? v.charAt(0).toUpperCase() + v.slice(1) : v);
+const TAG_ORDER = ['New in', 'Best seller', 'Sale', 'Featured', 'Limited Edition', 'Rare Find', 'Giftable'];
 const PRICES = [
   { val: 'u1000', label: 'Under $1,000' },
   { val: '1-5k', label: '$1,000 – $6,000' },
@@ -33,12 +31,29 @@ export default function Shop() {
   const [params] = useSearchParams();
   const saleMode = params.get('sale') === '1';
   const dept = params.get('dept');
-  const initialCat = params.get('cat');
+  const initialCat = params.get('cat') || '';
+  const initialTag = params.get('tag') || '';
 
-  const [cats, setCats] = useState(initialCat ? [initialCat] : []);
+  const [cat, setCat] = useState(initialCat);            // single-select category
+  const [tags, setTags] = useState(initialTag ? [initialTag] : []); // multi-select tags
   const [brands, setBrands] = useState([]);
   const [prices, setPrices] = useState([]);
   const [advOpen, setAdvOpen] = useState(false);
+
+  const catList = useMemo(() => {
+    const seen = [];
+    products.forEach((p) => { if (p.category && !seen.includes(p.category)) seen.push(p.category); });
+    return seen.sort();
+  }, [products]);
+
+  const tagList = useMemo(() => {
+    const seen = [];
+    products.forEach((p) => (p.tags || []).forEach((t) => { if (!seen.includes(t)) seen.push(t); }));
+    return seen.sort((a, b) => {
+      const ia = TAG_ORDER.indexOf(a), ib = TAG_ORDER.indexOf(b);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);
+    });
+  }, [products]);
 
   const brandList = useMemo(() => {
     const seen = [];
@@ -47,12 +62,13 @@ export default function Shop() {
   }, [products]);
 
   const filtered = useMemo(() => products.filter((p) => {
-    const okCat = !cats.length || cats.includes(p.category);
+    const okCat = !cat || p.category === cat;
+    const okTag = !tags.length || tags.some((t) => (p.tags || []).includes(t));
     const okBr = !brands.length || brands.includes(p.brand);
     const okPr = !prices.length || prices.some((r) => RANGES[r](p.price));
-    const okSale = !saleMode || p.tag === 'Sale';
-    return okCat && okBr && okPr && okSale;
-  }), [products, cats, brands, prices, saleMode]);
+    const okSale = !saleMode || (p.tags || []).includes('Sale');
+    return okCat && okTag && okBr && okPr && okSale;
+  }), [products, cat, tags, brands, prices, saleMode]);
 
   useEffect(() => {
     if (saleMode) document.title = 'Sale — Bougie Edition';
@@ -60,9 +76,10 @@ export default function Shop() {
     else document.title = 'Shop All — Bougie Edition';
   }, [saleMode, dept]);
 
-  const activeCount = cats.length + brands.length + prices.length;
+  const activeCount = (cat ? 1 : 0) + tags.length + brands.length + prices.length;
   const summaryParts = [];
-  if (cats.length) summaryParts.push(cats.length + ' categor' + (cats.length > 1 ? 'ies' : 'y'));
+  if (cat) summaryParts.push(catLabel(cat));
+  if (tags.length) summaryParts.push(tags.length + ' tag' + (tags.length > 1 ? 's' : ''));
   if (brands.length) summaryParts.push(brands.length + ' brand' + (brands.length > 1 ? 's' : ''));
   if (prices.length) summaryParts.push(prices.length + ' price range' + (prices.length > 1 ? 's' : ''));
 
@@ -96,9 +113,9 @@ export default function Shop() {
 
           <div className="shop-toolbar reveal">
             <div className="chips">
-              <button className={'chip' + (cats.length === 0 ? ' active' : '')} onClick={() => setCats([])}>All</button>
-              {CATS.map((c) => (
-                <button key={c.val} className={'chip' + (cats.includes(c.val) ? ' on active' : '')} onClick={() => setCats((v) => toggle(v, c.val))}>{c.label}</button>
+              <button className={'chip' + (cat === '' ? ' active' : '')} onClick={() => setCat('')}>All</button>
+              {catList.map((c) => (
+                <button key={c} className={'chip' + (cat === c ? ' on active' : '')} onClick={() => setCat((v) => (v === c ? '' : c))}>{catLabel(c)}</button>
               ))}
             </div>
             <div className="toolbar-right">
@@ -112,6 +129,14 @@ export default function Shop() {
 
           <div className={'adv-panel' + (advOpen ? ' open' : '')}>
             <div className="adv-inner">
+              <div className="filter-group">
+                <div className="fg-head"><h4>Tag</h4><span className="fg-hint">New in, sale &amp; more</span></div>
+                <div className="fchips">
+                  {tagList.map((t) => (
+                    <button key={t} className={'fchip' + (tags.includes(t) ? ' on' : '')} onClick={() => setTags((v) => toggle(v, t))}>{t}</button>
+                  ))}
+                </div>
+              </div>
               <div className="filter-group">
                 <div className="fg-head"><h4>Brand</h4><span className="fg-hint">Select any — combine freely</span></div>
                 <div className="fchips">
@@ -130,7 +155,7 @@ export default function Shop() {
               </div>
               <div className="adv-actions">
                 <div className="adv-summary">{summaryParts.length ? <>Filtering by <b>{summaryParts.join(', ')}</b></> : 'Showing all pieces'}</div>
-                <button className="clear-btn" onClick={() => { setCats([]); setBrands([]); setPrices([]); }}>Clear all filters</button>
+                <button className="clear-btn" onClick={() => { setCat(''); setTags([]); setBrands([]); setPrices([]); }}>Clear all filters</button>
               </div>
             </div>
           </div>
