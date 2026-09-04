@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import Reveal from '../components/Reveal';
 import ProductCard from '../components/ProductCard';
-import { useCatalog } from '../context/CatalogContext';
+import { useCatalog } from '../context/useCatalog';
 
 function top(products, cat) {
   const inCat = products.filter((p) => p.category === cat);

@@ -5,7 +5,20 @@
    Falls back to sample data until a CSV URL is configured, or if
    the sheet can't be reached.
    ============================================================ */
-import { CATALOG_CSV_URL } from './catalogConfig';
+import { CATALOG_CSV_URL, IMAGE_ROOT, IMAGE_EXT } from './catalogConfig';
+
+// Join a base URL and a path segment with exactly one slash between them.
+function joinUrl(root, seg){
+  return String(root).replace(/\/+$/,'') + '/' + String(seg).replace(/^\/+/,'');
+}
+// Resolve a single image cell to a URL that works on ANY route:
+//   • absolute URL or already-rooted "/path" → as-is
+//   • otherwise prefix IMAGE_ROOT when set, else make it root-relative ("/…")
+//     so relative sheet paths don't break on nested routes like /product/0.
+function resolveImage(u){
+  if(/^https?:\/\//i.test(u) || u.charAt(0) === '/') return u;
+  return IMAGE_ROOT ? joinUrl(IMAGE_ROOT, u) : '/' + u;
+}
 
 const FALLBACK = [
   {status:'Live',tag:'Featured',category:'bags',brand:'Dior',name:'Cannage lambskin flap, rose',price:4050,condition:'Excellent',description:'Cannage-quilted lambskin, aged gold hardware.',images:['/assets/products/IMG_6733.jpg']},
@@ -86,16 +99,18 @@ function rowsToProducts(rows){
     price: col(['priceusd','price']),
     condition: col(['condition']),
     description: col(['shortdescription','description']),
+    folder: col(['folder','imagefolder','imagesfolder','foldername','images']),
     img1: col(['image1','imagelink1','image']),
     img2: col(['image2','imagelink2']),
-    img3: col(['image3','imagelink3'])
+    img3: col(['image3','imagelink3']),
+    coa: col(['coa','coalink','certificate','certificateurl','certificatelink','certificateofauthenticity','authentication','authenticationcertificate'])
   };
   var out = [];
   for(var r=1;r<rows.length;r++){
     var row = rows[r];
     if(!row || !(row[idx.name]||'').trim()) continue;
-    var images = [row[idx.img1],row[idx.img2],row[idx.img3]].filter(function(u){return u && u.trim();}).map(function(u){return u.trim();});
-    out.push({
+
+    var product = {
       status: (row[idx.status]||'Live').trim() || 'Live',
       tag: (row[idx.tag]||'').trim(),
       category: (row[idx.category]||'').trim().toLowerCase(),
@@ -104,24 +119,56 @@ function rowsToProducts(rows){
       price: parseFloat((row[idx.price]||'0').replace(/[^0-9.]/g,'')) || 0,
       condition: (row[idx.condition]||'').trim(),
       description: (row[idx.description]||'').trim(),
-      images: images
-    });
+      coa: idx.coa > -1 ? (row[idx.coa]||'').trim() : '',
+      images: []
+    };
+
+    var folder = idx.folder > -1 ? (row[idx.folder]||'').trim() : '';
+    if(IMAGE_ROOT && folder){
+      // Folder mode: images are <root>/<folder>/1.jpg, /2.jpg … (probed on the
+      // product page). Cards/search use the first image.
+      var base = joinUrl(IMAGE_ROOT, folder);
+      product.imageBase = base;
+      product.imageExt = IMAGE_EXT;
+      product.images = [base + '/1' + IMAGE_EXT];
+    } else {
+      // Column mode: explicit image links (or names resolved against IMAGE_ROOT).
+      product.images = [row[idx.img1],row[idx.img2],row[idx.img3]]
+        .filter(function(u){ return u && u.trim(); })
+        .map(function(u){ return resolveImage(u.trim()); });
+    }
+
+    out.push(decorate(product));
   }
   return out;
 }
 
-function isLive(p){ return (p.status||'Live').trim().toLowerCase() !== 'hidden'; }
+// Statuses that take a product OFF the site entirely (still kept in the sheet).
+var HIDDEN_STATUSES = ['hidden','draft','archived','delete','deleted'];
+// Statuses that keep a product visible but mark it unavailable to buy.
+var SOLD_STATUSES = ['sold','soldout','outofstock','oos','reserved','onhold'];
+
+// Adds derived flags (soldOut) so the UI can render an out-of-stock state,
+// and normalises the status so `Live`, blank, `available`, etc. all show.
+function decorate(p){
+  var s = norm(p.status);
+  p.hidden = HIDDEN_STATUSES.indexOf(s) > -1;
+  p.soldOut = SOLD_STATUSES.indexOf(s) > -1;
+  return p;
+}
+
+function isVisible(p){ return !p.hidden; }
 
 export async function loadCatalog(){
-  if(!CATALOG_CSV_URL) return FALLBACK.filter(isLive);
+  if(!CATALOG_CSV_URL) return FALLBACK.map(decorate).filter(isVisible);
   try{
     const r = await fetch(CATALOG_CSV_URL);
     if(!r.ok) throw new Error('Catalog sheet responded with ' + r.status);
     const text = await r.text();
     const products = rowsToProducts(parseCSV(text));
-    return products.length ? products.filter(isLive) : FALLBACK.filter(isLive);
+    return products.length ? products.filter(isVisible) : FALLBACK.map(decorate).filter(isVisible);
   }catch(err){
     console.warn('Bougie catalog: could not load the sheet, showing sample data —', err);
-    return FALLBACK.filter(isLive);
+    return FALLBACK.map(decorate).filter(isVisible);
   }
 }

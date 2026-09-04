@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import Reveal from '../components/Reveal';
+import Captcha from '../components/Captcha';
 
 export default function Consultation() {
   const [submitted, setSubmitted] = useState(false);
+  const [human, setHuman] = useState(false);
 
   return (
     <>
@@ -27,7 +29,7 @@ export default function Consultation() {
 
             <Reveal className="reveal-d1">
               {!submitted ? (
-                <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }}>
+                <form onSubmit={(e) => { e.preventDefault(); if (!human) return; setSubmitted(true); }}>
                   <div className="form-grid">
                     <div className="field"><label htmlFor="v-name">Full name</label><input id="v-name" name="name" type="text" required placeholder="Your name" /></div>
                     <div className="field"><label htmlFor="v-email">Email</label><input id="v-email" name="email" type="email" required placeholder="you@email.com" /></div>
@@ -42,8 +44,9 @@ export default function Consultation() {
                     </div>
                     <div className="field full"><label htmlFor="v-notes">What would you like to discuss?</label><textarea id="v-notes" name="notes" placeholder="A specific bag, a piece you're considering consigning, anything else"></textarea></div>
                   </div>
+                  <Captcha onVerify={setHuman} />
                   <div className="form-actions">
-                    <button className="btn btn-gold" type="submit" style={{ border: 'none' }}><span>Request a consultation</span></button>
+                    <button className="btn btn-gold" type="submit" disabled={!human} style={{ border: 'none' }}><span>Request a consultation</span></button>
                     <p className="form-note">Consultations are complimentary and carry no obligation to buy or sell.</p>
                   </div>
                 </form>

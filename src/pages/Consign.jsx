@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import Reveal from '../components/Reveal';
+import Captcha from '../components/Captcha';
 
 export default function Consign() {
   const [submitted, setSubmitted] = useState(false);
+  const [human, setHuman] = useState(false);
 
   return (
     <>
@@ -27,7 +29,7 @@ export default function Consign() {
 
             <Reveal className="reveal-d1">
               {!submitted ? (
-                <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }}>
+                <form onSubmit={(e) => { e.preventDefault(); if (!human) return; setSubmitted(true); }}>
                   <div className="form-grid">
                     <div className="field"><label htmlFor="c-name">Full name</label><input id="c-name" name="name" type="text" required placeholder="Your name" /></div>
                     <div className="field"><label htmlFor="c-email">Email</label><input id="c-email" name="email" type="email" required placeholder="you@email.com" /></div>
@@ -46,8 +48,9 @@ export default function Consign() {
                     <div className="field full"><label htmlFor="c-desc">Model &amp; description</label><textarea id="c-desc" name="description" required placeholder="Model, size, colour, hardware, any flaws"></textarea></div>
                     <div className="field full"><label htmlFor="c-notes">Anything else we should know?</label><textarea id="c-notes" name="notes" placeholder="Optional"></textarea></div>
                   </div>
+                  <Captcha onVerify={setHuman} />
                   <div className="form-actions">
-                    <button className="btn btn-gold" type="submit" style={{ border: 'none' }}><span>Submit for review</span></button>
+                    <button className="btn btn-gold" type="submit" disabled={!human} style={{ border: 'none' }}><span>Submit for review</span></button>
                     <p className="form-note">Photos aren't uploaded here — once submitted, we'll email you with a secure link to share them.</p>
                   </div>
                 </form>

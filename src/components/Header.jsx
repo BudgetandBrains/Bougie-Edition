@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
-import { Search, User, ShoppingBag } from 'lucide-react';
+import { Search } from 'lucide-react';
 import CurrencySwitcher from './CurrencySwitcher';
 
-export default function Header({ scrolled, onDark, onMenuClick }) {
+export default function Header({ scrolled, onDark, onMenuClick, onSearchClick }) {
   return (
     <header className={'site-header' + (scrolled ? ' scrolled' : '') + (onDark ? ' on-dark' : '')}>
       <div className="header-left">
@@ -16,9 +16,7 @@ export default function Header({ scrolled, onDark, onMenuClick }) {
       </Link>
       <div className="header-right">
         <CurrencySwitcher />
-        <button className="util-btn" aria-label="Search"><Search /></button>
-        <button className="util-btn" aria-label="Account"><User /></button>
-        <button className="util-btn bag-wrap" aria-label="Bag"><ShoppingBag /><span className="bag-count">2</span></button>
+        <button className="util-btn" aria-label="Search" onClick={onSearchClick}><Search /></button>
       </div>
     </header>
   );

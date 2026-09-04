@@ -35,4 +35,5 @@ Live,,watches,Patek Philippe,Nautilus 5711,162500,Excellent,"Steel, integrated b
 Live,Best seller,watches,Rolex,Submariner Date,18000,Very good,"Steel, ceramic bezel, date function.",,,
 Live,,watches,Omega,Seamaster 300M,6275,Very good,"Steel, wave-pattern dial, diver 300m.",,,
 Live,New in,watches,Cartier,"Tank Must, large",3950,Excellent,"Steel, Roman numerals, quartz movement.",,,
-Hidden,,bags,Example Brand,Example Item — set Status to Hidden to take it off the site,500,Good,Delete this row or edit it to add your own product.,,, 
+Sold,Best seller,bags,Example Brand,"Example — set Status to Sold to show it as out of stock",500,Good,"Stays on the site greyed-out with a Sold badge; buy button disabled.",,,
+Hidden,,bags,Example Brand,"Example — set Status to Hidden to remove it from the site",500,Good,"Disappears from the site but stays in your sheet. Delete or edit these example rows.",,,

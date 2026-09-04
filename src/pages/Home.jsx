@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import Reveal from '../components/Reveal';
 import ProductCard from '../components/ProductCard';
-import { useCatalog } from '../context/CatalogContext';
+import { useCatalog } from '../context/useCatalog';
 
 export default function Home() {
   const { products } = useCatalog();
@@ -45,7 +45,7 @@ export default function Home() {
         <div className="hero-inner">
           <div className="container hero-c">
             <h1 className="hero-title hero-words">
-              <span className="mask"><span className="w" style={{ '--i': 0 }}>Timeless.</span></span>
+              <span className="mask"><span className="w" style={{ '--i': 0 }}>Timeless Luxury.</span></span>
               <span className="mask"><span className="w" style={{ '--i': 1 }}>Bougie.</span></span>
               <span className="mask"><span className="w accent" style={{ '--i': 2 }}>Iconic.</span></span>
               <span className="mask"><span className="w" style={{ '--i': 3 }}>Yours<span className="pt">.</span></span></span>
@@ -54,31 +54,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section stat-band" id="house">
-        <div className="container">
-          <div className="stat-head">
-            <div>
-              <Reveal as="p" className="eyebrow">01 — The house</Reveal>
-              <Reveal as="h2" className="sec-title reveal-d1">Numbers we <span className="serif-italic">stand behind</span></Reveal>
-            </div>
-            <Reveal className="stat-intro reveal-d2">
-              <p>Every figure reflects a promise kept — pieces sourced with care, authenticated without exception, and guaranteed in writing.</p>
-              <Link className="btn btn-ink" to="/about"><span>Our story</span><ArrowRight className="arrow" size={16} /></Link>
-            </Reveal>
-          </div>
-          <div className="stat-row">
-            <Reveal className="stat"><div className="num">12<span>+</span></div><div className="lbl2">Years sourcing</div></Reveal>
-            <Reveal className="stat reveal-d1"><div className="num">9,400<span>+</span></div><div className="lbl2">Pieces authenticated</div></Reveal>
-            <Reveal className="stat reveal-d2"><div className="num">60<span>+</span></div><div className="lbl2">Maisons carried</div></Reveal>
-            <Reveal className="stat reveal-d3"><div className="num">100<span>%</span></div><div className="lbl2">Independently verified</div><div className="bar"></div></Reveal>
-          </div>
-        </div>
-      </section>
-
       <section className="section icons-sec" id="icons" style={{ background: 'var(--surface-page)', borderTop: '1px solid var(--border-hairline)' }}>
         <div className="container">
           <div className="icons-head center">
-            <Reveal as="p" className="eyebrow" style={{ justifyContent: 'center' }}>02 — Featured &amp; best-selling</Reveal>
+            <Reveal as="p" className="eyebrow" style={{ justifyContent: 'center' }}>01 — Featured &amp; best-selling</Reveal>
             <Reveal as="h2" className="big-title reveal-d1">Own the <span className="serif-italic">Icons</span><span className="dot">.</span></Reveal>
             <Reveal as="p" className="icons-sub reveal-d2">The pieces that define a collection — verified, documented, and ready to be carried for a lifetime.</Reveal>
           </div>
@@ -93,7 +72,7 @@ export default function Home() {
         <div className="container">
           <div className="sec-head">
             <div>
-              <Reveal as="p" className="eyebrow">03 — Browse the range</Reveal>
+              <Reveal as="p" className="eyebrow">02 — Browse the range</Reveal>
               <Reveal as="h2" className="sec-title reveal-d1">Shop by <span className="serif-italic">category</span></Reveal>
             </div>
             <Reveal as={Link} className="link-u reveal-d2" to="/shop" style={{ color: 'var(--ink-900)' }}>Shop all</Reveal>
@@ -120,10 +99,10 @@ export default function Home() {
           <Reveal><img src="/assets/products/IMG_6690.jpg" alt="Metallic flap with dust bag and cards" /></Reveal>
           <Reveal className="reveal-d1"><img src="/assets/products/IMG_6751.jpg" alt="Hardware and zipper detail" /></Reveal>
           <Reveal className="mosaic-text reveal-d2">
-            <p className="eyebrow on-dark">04 — The promise</p>
+            <p className="eyebrow on-dark">03 — The promise</p>
             <h3 className="mosaic-title">The art of <span className="serif-italic">authentication</span></h3>
             <p>We source rare and sought-after pieces, then verify every one in hand — materials, hardware, serials and provenance — before it is offered. So the only thing you inherit is the object itself.</p>
-            <p>Every piece ships with a Certificate of Authenticity from Entrupy or LegitApp — and leaves our atelier exactly as it arrived. Zero repainted or repaired bags, ever.</p>
+            <p>Every piece ships with a 100% financially-backed Certificate of Authenticity from leading third-party authenticators — Entrupy and LegitApp — and leaves our atelier exactly as it arrived. Zero repainted or repaired bags, ever.</p>
           </Reveal>
           <Reveal className="reveal-d3"><img src="/assets/products/IMG_6745.jpg" alt="Monogram leather goods detail" /></Reveal>
         </div>
@@ -141,7 +120,7 @@ export default function Home() {
         <div className="container">
           <div className="sec-head">
             <div>
-              <Reveal as="p" className="eyebrow">05 — Just in</Reveal>
+              <Reveal as="p" className="eyebrow">04 — Just in</Reveal>
               <Reveal as="h2" className="sec-title reveal-d1">Newly <span className="shift serif-italic">sourced</span></Reveal>
             </div>
             <Reveal as={Link} className="link-u reveal-d2" to="/shop?sort=new" style={{ color: 'var(--ink-900)' }}>See everything new</Reveal>
@@ -156,7 +135,7 @@ export default function Home() {
         <div className="container">
           <div className="sec-head">
             <div>
-              <Reveal as="p" className="eyebrow on-dark">06 — The labels we carry</Reveal>
+              <Reveal as="p" className="eyebrow on-dark">05 — The labels we carry</Reveal>
               <Reveal as="h2" className="sec-title reveal-d1">In good <span className="shift serif-italic">company</span></Reveal>
             </div>
             <Reveal as={Link} className="link-u reveal-d2" to="/brands" style={{ color: 'var(--cream)' }}>All brands</Reveal>
@@ -173,7 +152,7 @@ export default function Home() {
         <div className="container">
           <div className="sec-head">
             <div>
-              <Reveal as="p" className="eyebrow">07 — In their words</Reveal>
+              <Reveal as="p" className="eyebrow">06 — In their words</Reveal>
               <Reveal as="h2" className="sec-title reveal-d1">What clients <span className="serif-italic">say</span></Reveal>
             </div>
           </div>
@@ -201,7 +180,7 @@ export default function Home() {
         <div className="container">
           <div className="sec-head">
             <div>
-              <Reveal as="p" className="eyebrow">08 — Straight from the atelier</Reveal>
+              <Reveal as="p" className="eyebrow">07 — Straight from the atelier</Reveal>
               <Reveal as="h2" className="sec-title reveal-d1">See it <span className="serif-italic">up close</span></Reveal>
             </div>
           </div>
@@ -222,7 +201,7 @@ export default function Home() {
         <div className="container">
           <div className="sec-head">
             <div>
-              <Reveal as="p" className="eyebrow on-dark">09 — Work with us</Reveal>
+              <Reveal as="p" className="eyebrow on-dark">08 — Work with us</Reveal>
               <Reveal as="h2" className="sec-title reveal-d1" style={{ color: 'var(--cream)' }}>Beyond the <span className="shift serif-italic">edit</span></Reveal>
             </div>
           </div>
@@ -243,6 +222,27 @@ export default function Home() {
               <span className="service-go">Book a call<ArrowRight className="arrow" size={15} /></span>
             </Link>
           </Reveal>
+        </div>
+      </section>
+
+      <section className="section stat-band" id="house">
+        <div className="container">
+          <div className="stat-head">
+            <div>
+              <Reveal as="p" className="eyebrow">09 — The house</Reveal>
+              <Reveal as="h2" className="sec-title reveal-d1">Numbers we <span className="serif-italic">stand behind</span></Reveal>
+            </div>
+            <Reveal className="stat-intro reveal-d2">
+              <p>Every figure reflects a promise kept — pieces sourced with care, authenticated without exception, and guaranteed in writing.</p>
+              <Link className="btn btn-ink" to="/about"><span>Our story</span><ArrowRight className="arrow" size={16} /></Link>
+            </Reveal>
+          </div>
+          <div className="stat-row">
+            <Reveal className="stat"><div className="num">12<span>+</span></div><div className="lbl2">Years sourcing</div></Reveal>
+            <Reveal className="stat reveal-d1"><div className="num">9,400<span>+</span></div><div className="lbl2">Pieces authenticated</div></Reveal>
+            <Reveal className="stat reveal-d2"><div className="num">60<span>+</span></div><div className="lbl2">Maisons carried</div></Reveal>
+            <Reveal className="stat reveal-d3"><div className="num">100<span>%</span></div><div className="lbl2">Independently verified</div><div className="bar"></div></Reveal>
+          </div>
         </div>
       </section>
     </>

@@ -3,10 +3,12 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import NavRail from './NavRail';
 import Footer from './Footer';
+import SearchOverlay from './SearchOverlay';
 
 function pageKeyFor(pathname) {
   if (pathname.startsWith('/shop') || pathname.startsWith('/category') || pathname.startsWith('/product')) return 'shop';
   if (pathname.startsWith('/drops')) return 'drops';
+  if (pathname.startsWith('/consultation')) return 'consult';
   if (pathname.startsWith('/consign')) return 'consign';
   if (pathname.startsWith('/sourcing')) return 'source';
   return '';
@@ -17,6 +19,7 @@ export default function Layout() {
   const [scrolled, setScrolled] = useState(false);
   const [onDark, setOnDark] = useState(false);
   const [railOpen, setRailOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     function onScroll() {
@@ -47,12 +50,13 @@ export default function Layout() {
     return () => document.removeEventListener('keydown', onKey);
   }, []);
 
-  useEffect(() => { setRailOpen(false); window.scrollTo(0, 0); }, [location.pathname]);
+  useEffect(() => { setRailOpen(false); setSearchOpen(false); window.scrollTo(0, 0); }, [location.pathname]);
 
   return (
     <>
-      <Header scrolled={scrolled} onDark={onDark} onMenuClick={() => setRailOpen((o) => !o)} />
+      <Header scrolled={scrolled} onDark={onDark} onMenuClick={() => setRailOpen((o) => !o)} onSearchClick={() => setSearchOpen(true)} />
       <NavRail open={railOpen} page={pageKeyFor(location.pathname)} onClose={() => setRailOpen(false)} />
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
       <Outlet />
       <Footer />
     </>

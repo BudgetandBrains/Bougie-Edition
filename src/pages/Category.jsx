@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Reveal from '../components/Reveal';
 import ProductCard from '../components/ProductCard';
-import { useCatalog } from '../context/CatalogContext';
+import { useCatalog } from '../context/useCatalog';
 import './category.extra.css';
 
 const LEDE = {
