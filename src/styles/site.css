@@ -223,7 +223,7 @@ img{display:block;max-width:100%}
 .dark-band .shift.cool,.on-dark-sec .shift.cool{color:var(--signal-on-dark)}
 
 .hero{
-  position:relative;min-height:100vh;display:flex;flex-direction:column;
+  position:relative;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;
   justify-content:center;align-items:center;text-align:center;
   background:var(--espresso);color:var(--cream);overflow:hidden;padding-top:var(--header-h);
 }
@@ -599,3 +599,40 @@ img{display:block;max-width:100%}
 .form-success{padding:clamp(40px,6vw,72px);text-align:center;border:1px solid var(--border-hairline);border-radius:var(--radius-xs)}
 .form-success h3{font-family:var(--font-display);font-weight:400;font-size:clamp(1.5rem,2.6vw,2rem);margin:0 0 14px}
 .form-success p{color:var(--text-muted);margin:0;max-width:46ch;margin-inline:auto;line-height:1.6}
+
+/* ============================================================
+   Mobile refinements
+   ============================================================ */
+@media (max-width:720px){
+  :root{--header-h:72px;--sec-pad:clamp(76px,12vh,130px)}
+  .site-header{padding-inline:14px}
+  .logo-emblem{width:72px;height:72px}
+  .site-header.scrolled .logo-emblem{width:44px;height:44px}
+  .header-right{gap:0}
+  .util-btn{width:40px;height:40px}
+  .cur-btn{padding:0 8px}
+  .menu-trigger{padding:8px 6px}
+}
+
+@media (max-width:640px){
+  .hero-title{font-size:clamp(2.05rem,10.5vw,2.9rem)}
+  .sec-head{margin-bottom:40px;gap:18px}
+  .btn{padding:16px 28px}
+  .page-hero{padding-top:calc(var(--header-h) + clamp(48px,8vh,90px))}
+  .page-lede{margin-top:24px}
+}
+
+@media (max-width:560px){
+  .mosaic{grid-auto-rows:auto}
+  .mosaic > *{min-height:min(86vw,360px)}
+  .mosaic-text{min-height:0;padding-block:44px}
+  .cat-meta{padding:22px 20px}
+  .prod-grid{gap:26px 14px}
+  .foot-note{gap:10px}
+}
+
+/* Touch devices: surface hover-only actions */
+@media (hover:none){
+  .prod .add{opacity:1;transform:none;padding:12px}
+  .cat-card .cat-meta .go{background:#fff;color:var(--ink-900)}
+}
