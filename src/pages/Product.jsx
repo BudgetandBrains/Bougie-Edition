@@ -98,7 +98,7 @@ export default function Product() {
               )}
 
               <div style={{ display: 'flex', gap: '14px', margin: '30px 0 6px', flexWrap: 'wrap' }}>
-                <button className="btn btn-gold" type="button" disabled={product.soldOut} style={{ border: 'none', flex: 1, justifyContent: 'center', minWidth: '200px' }}><span>{product.soldOut ? 'Sold' : 'Add to bag'}</span></button>
+                <button className="btn btn-gold" type="button" disabled={product.soldOut} style={{ border: 'none', flex: 1, justifyContent: 'center', minWidth: '200px' }}><span>{product.soldOut ? 'Sold' : 'Add to cart'}</span></button>
                 <Link className="btn btn-ghost" to="/consultation"><span>{product.soldOut ? 'Source a similar piece' : 'Ask about this piece'}</span></Link>
               </div>
 

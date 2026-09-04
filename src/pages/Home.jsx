@@ -34,9 +34,9 @@ export default function Home() {
     return () => io.disconnect();
   }, []);
 
-  const icons = products.filter((p) => p.tag === 'Featured' || p.tag === 'Best seller').slice(0, 4);
+  const icons = products.filter((p) => (p.tags || []).includes('Featured') || (p.tags || []).includes('Best seller')).slice(0, 4);
   const iconsShow = icons.length ? icons : products.slice(0, 4);
-  const justIn = products.filter((p) => p.tag === 'New in').slice(0, 4);
+  const justIn = products.filter((p) => (p.tags || []).includes('New in')).slice(0, 4);
   const justInShow = justIn.length ? justIn : products.slice(4, 8);
 
   return (

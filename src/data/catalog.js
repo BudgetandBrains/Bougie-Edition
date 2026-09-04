@@ -110,9 +110,11 @@ function rowsToProducts(rows){
     var row = rows[r];
     if(!row || !(row[idx.name]||'').trim()) continue;
 
+    var tagRaw = (row[idx.tag]||'').trim();
     var product = {
       status: (row[idx.status]||'Live').trim() || 'Live',
-      tag: (row[idx.tag]||'').trim(),
+      tag: tagRaw,
+      tags: tagRaw.split(',').map(function(t){ return t.trim(); }).filter(Boolean),
       category: (row[idx.category]||'').trim().toLowerCase(),
       brand: (row[idx.brand]||'').trim(),
       name: (row[idx.name]||'').trim(),
@@ -154,6 +156,8 @@ function decorate(p){
   var s = norm(p.status);
   p.hidden = HIDDEN_STATUSES.indexOf(s) > -1;
   p.soldOut = SOLD_STATUSES.indexOf(s) > -1;
+  // ensure a tags[] array exists (fallback data only carries a single tag string)
+  if(!p.tags) p.tags = (p.tag||'').split(',').map(function(t){ return t.trim(); }).filter(Boolean);
   return p;
 }
 

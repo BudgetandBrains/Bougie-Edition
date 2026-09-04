@@ -173,6 +173,17 @@ img{display:block;max-width:100%}
 .nav-item:hover,.nav-item.current{color:var(--ivory-50);border-left-color:var(--signal-on-dark)}
 .nav-item:hover{background:rgba(255,255,255,0.035)}
 
+/* Shop cascade (category submenu) */
+.nav-parent{width:100%;background:none;border:none;border-left:1.5px solid transparent;cursor:pointer;font-family:var(--font-sans)}
+.nav-caret{margin-left:auto;flex:0 0 auto;color:var(--stone-500);opacity:0;transition:opacity var(--dur-base) var(--ease-luxe),transform var(--dur-base) var(--ease-luxe)}
+.nav-rail:hover .nav-caret,.nav-rail.pinned .nav-caret{opacity:.75}
+.nav-caret.open{transform:rotate(180deg)}
+.nav-sub{overflow:hidden;max-height:0;transition:max-height var(--dur-slow) var(--ease-luxe)}
+.nav-sub.open{max-height:520px}
+.nav-subitem{display:block;padding:9px 30px 9px 78px;white-space:nowrap;font-family:var(--font-display);font-size:15px;color:var(--stone-500);opacity:0;transform:translateX(-8px);transition:color var(--dur-base) var(--ease-luxe),opacity var(--dur-base) var(--ease-luxe),transform var(--dur-base) var(--ease-luxe)}
+.nav-rail:hover .nav-subitem,.nav-rail.pinned .nav-subitem{opacity:1;transform:none}
+.nav-subitem:hover{color:var(--ivory-50)}
+
 .nav-scrim{position:fixed;inset:0;z-index:65;background:var(--surface-overlay);opacity:0;visibility:hidden;transition:opacity var(--dur-base),visibility var(--dur-base)}
 .nav-scrim.show{opacity:1;visibility:visible}
 
@@ -350,9 +361,9 @@ img{display:block;max-width:100%}
 .cat-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease-luxe)}
 .cat-card:hover img{transform:scale(1.05)}
 .prod:hover .frame .ph{transform:scale(1.16)}
-.prod .add{position:absolute;left:16px;right:16px;bottom:16px;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);color:var(--ink-900);border-radius:var(--radius-xs);text-align:center;padding:14px;font:var(--t-label-m);letter-spacing:var(--track-label);text-transform:uppercase;opacity:0;transform:translateY(12px);transition:opacity var(--dur-base) var(--ease-luxe),transform var(--dur-base)}
-.prod:hover .add{opacity:1;transform:none}
 .prod .tag{position:absolute;top:14px;left:14px;z-index:2;display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.92);backdrop-filter:blur(4px);color:var(--ink-900);font:var(--t-label-m);letter-spacing:var(--track-label-tight);text-transform:uppercase;padding:7px 11px;border-radius:var(--radius-xs)}
+/* task: drastically smaller, subtler tag so it doesn't cover the product */
+.prod .tag.tag-mini{top:10px;left:10px;gap:5px;padding:3px 7px;font-size:8.5px;letter-spacing:.09em;background:rgba(255,255,255,.82);color:var(--text-muted);border-radius:2px}
 .prod .tag.sold-tag{background:var(--ink-900);color:#fff}
 .prod .frame.is-sold img,.prod .frame.is-sold .ph{filter:grayscale(1);opacity:.72}
 .prod:hover .frame.is-sold img,.prod:hover .frame.is-sold .ph{transform:none}
@@ -633,6 +644,5 @@ img{display:block;max-width:100%}
 
 /* Touch devices: surface hover-only actions */
 @media (hover:none){
-  .prod .add{opacity:1;transform:none;padding:12px}
   .cat-card .cat-meta .go{background:#fff;color:var(--ink-900)}
 }
