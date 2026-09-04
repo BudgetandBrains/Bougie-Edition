@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Shirt, Flower2, Sparkles, Upload, Search } from 'lucide-react';
+import { ShoppingBag, Shirt, Flower2, Sparkles, Upload, Search, CalendarCheck } from 'lucide-react';
 
 const NAV = [
   { key: 'shop', icon: ShoppingBag, label: 'Shop All', href: '/shop' },
   { key: 'men', icon: Shirt, label: 'Men', href: '/shop?dept=men' },
   { key: 'women', icon: Flower2, label: 'Women', href: '/shop?dept=women' },
   { key: 'drops', icon: Sparkles, label: 'New Arrivals', href: '/drops' },
+  { key: 'consult', icon: CalendarCheck, label: 'Book Consultation', href: '/consultation' },
   { key: 'consign', icon: Upload, label: 'Consign', href: '/consign' },
   { key: 'source', icon: Search, label: 'Source', href: '/sourcing' }
 ];

@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import Reveal from '../components/Reveal';
+import Captcha from '../components/Captcha';
 
 export default function Sourcing() {
   const [submitted, setSubmitted] = useState(false);
+  const [human, setHuman] = useState(false);
 
   return (
     <>
@@ -27,7 +29,7 @@ export default function Sourcing() {
 
             <Reveal className="reveal-d1">
               {!submitted ? (
-                <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }}>
+                <form onSubmit={(e) => { e.preventDefault(); if (!human) return; setSubmitted(true); }}>
                   <div className="form-grid">
                     <div className="field"><label htmlFor="s-name">Full name</label><input id="s-name" name="name" type="text" required placeholder="Your name" /></div>
                     <div className="field"><label htmlFor="s-email">Email</label><input id="s-email" name="email" type="email" required placeholder="you@email.com" /></div>
@@ -43,8 +45,9 @@ export default function Sourcing() {
                     </div>
                     <div className="field full"><label htmlFor="s-notes">Additional details</label><textarea id="s-notes" name="notes" placeholder="Size, hardware, condition preferences, anything else"></textarea></div>
                   </div>
+                  <Captcha onVerify={setHuman} />
                   <div className="form-actions">
-                    <button className="btn btn-gold" type="submit" style={{ border: 'none' }}><span>Send sourcing request</span></button>
+                    <button className="btn btn-gold" type="submit" disabled={!human} style={{ border: 'none' }}><span>Send sourcing request</span></button>
                     <p className="form-note">There's no fee to submit a request — we only follow up once we've found a genuine match.</p>
                   </div>
                 </form>

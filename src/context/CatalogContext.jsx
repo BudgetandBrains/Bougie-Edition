@@ -1,7 +1,6 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { loadCatalog } from '../data/catalog';
-
-const CatalogContext = createContext({ products: [], loading: true });
+import { CatalogContext } from './useCatalog';
 
 export function CatalogProvider({ children }) {
   const [products, setProducts] = useState([]);
@@ -16,8 +15,4 @@ export function CatalogProvider({ children }) {
       {children}
     </CatalogContext.Provider>
   );
-}
-
-export function useCatalog() {
-  return useContext(CatalogContext);
 }

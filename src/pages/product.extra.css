@@ -4,3 +4,8 @@
 @media (max-width:900px){.pdetail{position:static}}
 .cert-line{display:flex;align-items:flex-start;gap:10px;margin:18px 0 0;font-size:.88rem;line-height:1.55;color:var(--text-muted)}
 .cert-line .dotb{width:5px;height:5px;border-radius:50%;background:var(--signal);margin-top:7px;flex:0 0 auto}
+
+/* Certificate of Authenticity link */
+.coa-link{display:inline-flex;align-items:center;gap:8px;font:var(--t-label-m);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--signal);border:1px solid var(--signal);border-radius:var(--radius-pill);padding:10px 18px;transition:background var(--dur-base) var(--ease-luxe),color var(--dur-base) var(--ease-luxe)}
+.coa-link:hover{background:var(--signal);color:#fff}
+.coa-link span{font-size:1.05em;line-height:1}
