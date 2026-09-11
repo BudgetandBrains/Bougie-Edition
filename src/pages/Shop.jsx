@@ -3,25 +3,18 @@ import { useSearchParams } from 'react-router-dom';
 import { SlidersHorizontal, ChevronDown } from 'lucide-react';
 import Reveal from '../components/Reveal';
 import ProductCard from '../components/ProductCard';
+import PriceRange from '../components/PriceRange';
 import { useCatalog } from '../context/useCatalog';
+import { useCurrency } from '../context/CurrencyContext';
 import { SORT_OPTIONS, DEFAULT_SORT, normalizeSort, sortProducts } from '../data/sort';
 import './shop.extra.css';
 
 const CAT_LABELS = { bags: 'Bags', backpack: 'Backpacks', backpacks: 'Backpacks', jewelry: 'Jewellery', jewellery: 'Jewellery', novelty: 'Novelty', watches: 'Watches', belts: 'Belts & accessories', accessories: 'Accessories' };
 const catLabel = (v) => CAT_LABELS[v] || (v ? v.charAt(0).toUpperCase() + v.slice(1) : v);
 const TAG_ORDER = ['New in', 'Best seller', 'Sale', 'Featured', 'Limited Edition', 'Rare Find', 'Giftable'];
-const PRICES = [
-  { val: 'u1000', label: 'Under $1,000' },
-  { val: '1-5k', label: '$1,000 – $6,000' },
-  { val: '5-15k', label: '$6,000 – $20,000' },
-  { val: '15k+', label: '$20,000 +' }
-];
-const RANGES = {
-  u1000: (p) => p < 1000,
-  '1-5k': (p) => p >= 1000 && p < 6000,
-  '5-15k': (p) => p >= 6000 && p < 20000,
-  '15k+': (p) => p >= 20000
-};
+// Price filter granularity — the slider's step, and what the top of the
+// scale is rounded up to.
+const PRICE_STEP = 500;
 
 function toggle(arr, val) {
   return arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val];
@@ -29,6 +22,7 @@ function toggle(arr, val) {
 
 export default function Shop() {
   const { products } = useCatalog();
+  const { fmt } = useCurrency();
   const [params, setParams] = useSearchParams();
   const saleMode = params.get('sale') === '1';
   const dept = params.get('dept');
@@ -39,7 +33,7 @@ export default function Shop() {
   const [cat, setCat] = useState(initialCat);            // single-select category
   const [tags, setTags] = useState(initialTag ? [initialTag] : []); // multi-select tags
   const [brands, setBrands] = useState([]);
-  const [prices, setPrices] = useState([]);
+  const [priceRange, setPriceRange] = useState(null); // null = full span
   const [advOpen, setAdvOpen] = useState(false);
 
   const catList = useMemo(() => {
@@ -57,6 +51,21 @@ export default function Shop() {
     });
   }, [products]);
 
+  // Top of the scale comes from the catalog itself, rounded up to the next
+  // PRICE_STEP, so the slider always covers the real stock — and follows it
+  // when the sheet changes, instead of the old fixed bands.
+  const priceCeiling = useMemo(() => {
+    const top = products.reduce((m, p) => Math.max(m, p.price || 0), 0);
+    return Math.max(Math.ceil(top / PRICE_STEP) * PRICE_STEP, PRICE_STEP);
+  }, [products]);
+
+  // Held as null until touched, so a range chosen before the catalog
+  // finished loading is never silently widened by a later ceiling.
+  const [lo, hi] = priceRange
+    ? [Math.min(priceRange[0], priceCeiling), Math.min(priceRange[1], priceCeiling)]
+    : [0, priceCeiling];
+  const priceActive = lo > 0 || hi < priceCeiling;
+
   const brandList = useMemo(() => {
     const seen = [];
     products.forEach((p) => { if (p.brand && !seen.includes(p.brand)) seen.push(p.brand); });
@@ -72,10 +81,10 @@ export default function Shop() {
       const okCat = !cat || p.category === cat;
       const okTag = !tags.length || tags.some((t) => (p.tags || []).includes(t));
       const okBr = !brands.length || brands.includes(p.brand);
-      const okPr = !prices.length || prices.some((r) => RANGES[r](p.price));
+      const okPr = (p.price || 0) >= lo && (p.price || 0) <= hi;
       const okSale = !saleMode || (p.tags || []).includes('Sale');
       return okCat && okTag && okBr && okPr && okSale;
-    }), [products, cat, tags, brands, prices, saleMode]);
+    }), [products, cat, tags, brands, lo, hi, saleMode]);
 
   const visible = useMemo(() => sortProducts(filtered, sort), [filtered, sort]);
 
@@ -93,12 +102,12 @@ export default function Shop() {
     else document.title = 'Shop All — Bougie Edition';
   }, [saleMode, dept]);
 
-  const activeCount = (cat ? 1 : 0) + tags.length + brands.length + prices.length;
+  const activeCount = (cat ? 1 : 0) + tags.length + brands.length + (priceActive ? 1 : 0);
   const summaryParts = [];
   if (cat) summaryParts.push(catLabel(cat));
   if (tags.length) summaryParts.push(tags.length + ' tag' + (tags.length > 1 ? 's' : ''));
   if (brands.length) summaryParts.push(brands.length + ' brand' + (brands.length > 1 ? 's' : ''));
-  if (prices.length) summaryParts.push(prices.length + ' price range' + (prices.length > 1 ? 's' : ''));
+  if (priceActive) summaryParts.push(`${fmt ? fmt(lo) : '$' + lo}–${fmt ? fmt(hi) : '$' + hi}`);
 
   let heroEyebrow = 'The full edit', heroTitleText = <>Shop <span className="serif-italic">all</span>.</>;
   let heroLede = "Everything we carry, in one place — for those who prefer to browse the whole edit. Filter by category, mix multiple brands and price ranges to find your piece.";
@@ -170,16 +179,18 @@ export default function Shop() {
                 </div>
               </div>
               <div className="filter-group">
-                <div className="fg-head"><h4>Price</h4><span className="fg-hint">Select any — combine ranges</span></div>
-                <div className="fchips">
-                  {PRICES.map((pr) => (
-                    <button key={pr.val} className={'fchip' + (prices.includes(pr.val) ? ' on' : '')} onClick={() => setPrices((v) => toggle(v, pr.val))}>{pr.label}</button>
-                  ))}
-                </div>
+                <div className="fg-head"><h4>Price</h4><span className="fg-hint">Drag to set a range</span></div>
+                <PriceRange
+                  min={0}
+                  max={priceCeiling}
+                  step={PRICE_STEP}
+                  value={[lo, hi]}
+                  onChange={setPriceRange}
+                />
               </div>
               <div className="adv-actions">
                 <div className="adv-summary">{summaryParts.length ? <>Filtering by <b>{summaryParts.join(', ')}</b></> : 'Showing all pieces'}</div>
-                <button className="clear-btn" onClick={() => { setCat(''); setTags([]); setBrands([]); setPrices([]); }}>Clear all filters</button>
+                <button className="clear-btn" onClick={() => { setCat(''); setTags([]); setBrands([]); setPriceRange(null); }}>Clear all filters</button>
               </div>
             </div>
           </div>
