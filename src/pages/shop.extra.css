@@ -38,3 +38,29 @@
 .ctx-note::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--pop)}
 
 .noresults{padding:60px 0;text-align:center;color:var(--text-muted);font-family:var(--font-display);font-size:1.4rem}
+
+/* ── Sort control ──────────────────────────────────────────────────── */
+/* Sits beside Filters in the toolbar and borrows its pill shape, but
+   stays visually quieter — sorting reorders, it doesn't narrow. */
+.sort-field{position:relative;display:inline-flex;align-items:center}
+.sort-select{
+  appearance:none;-webkit-appearance:none;
+  font:var(--t-label-m);letter-spacing:var(--track-label);text-transform:uppercase;
+  padding:11px 36px 11px 16px;
+  border:1px solid var(--border-hairline);border-radius:var(--radius-pill);
+  background:transparent;color:var(--text-muted);cursor:pointer;
+  transition:border-color var(--dur-base) var(--ease-luxe),color var(--dur-base) var(--ease-luxe)
+}
+.sort-select:hover{border-color:var(--ink-900);color:var(--ink-900)}
+.sort-select:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.sort-caret{
+  position:absolute;right:14px;pointer-events:none;
+  color:var(--text-faint);transition:color var(--dur-base) var(--ease-luxe)
+}
+.sort-field:hover .sort-caret{color:var(--ink-900)}
+/* The native menu inherits the page font, not the uppercase label styling. */
+.sort-select option{text-transform:none;letter-spacing:normal;color:var(--ink-900)}
+@media (max-width:560px){
+  .toolbar-right{flex-wrap:wrap;gap:12px}
+  .sort-select{padding:10px 32px 10px 14px}
+}

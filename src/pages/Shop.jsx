@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { SlidersHorizontal } from 'lucide-react';
+import { SlidersHorizontal, ChevronDown } from 'lucide-react';
 import Reveal from '../components/Reveal';
 import ProductCard from '../components/ProductCard';
 import { useCatalog } from '../context/useCatalog';
+import { SORT_OPTIONS, DEFAULT_SORT, normalizeSort, sortProducts } from '../data/sort';
 import './shop.extra.css';
 
 const CAT_LABELS = { bags: 'Bags', backpack: 'Backpacks', backpacks: 'Backpacks', jewelry: 'Jewellery', jewellery: 'Jewellery', novelty: 'Novelty', watches: 'Watches', belts: 'Belts & accessories', accessories: 'Accessories' };
@@ -28,11 +29,12 @@ function toggle(arr, val) {
 
 export default function Shop() {
   const { products } = useCatalog();
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const saleMode = params.get('sale') === '1';
   const dept = params.get('dept');
   const initialCat = params.get('cat') || '';
   const initialTag = params.get('tag') || '';
+  const sort = normalizeSort(params.get('sort'));
 
   const [cat, setCat] = useState(initialCat);            // single-select category
   const [tags, setTags] = useState(initialTag ? [initialTag] : []); // multi-select tags
@@ -61,14 +63,29 @@ export default function Shop() {
     return seen.sort();
   }, [products]);
 
-  const filtered = useMemo(() => products.filter((p) => {
-    const okCat = !cat || p.category === cat;
-    const okTag = !tags.length || tags.some((t) => (p.tags || []).includes(t));
-    const okBr = !brands.length || brands.includes(p.brand);
-    const okPr = !prices.length || prices.some((r) => RANGES[r](p.price));
-    const okSale = !saleMode || (p.tags || []).includes('Sale');
-    return okCat && okTag && okBr && okPr && okSale;
-  }), [products, cat, tags, brands, prices, saleMode]);
+  // Carries each piece's catalog index through filtering and sorting —
+  // that index is what /product/:id resolves against, so reordering the
+  // grid never changes where a card points.
+  const filtered = useMemo(() => products
+    .map((product, index) => ({ product, index }))
+    .filter(({ product: p }) => {
+      const okCat = !cat || p.category === cat;
+      const okTag = !tags.length || tags.some((t) => (p.tags || []).includes(t));
+      const okBr = !brands.length || brands.includes(p.brand);
+      const okPr = !prices.length || prices.some((r) => RANGES[r](p.price));
+      const okSale = !saleMode || (p.tags || []).includes('Sale');
+      return okCat && okTag && okBr && okPr && okSale;
+    }), [products, cat, tags, brands, prices, saleMode]);
+
+  const visible = useMemo(() => sortProducts(filtered, sort), [filtered, sort]);
+
+  // Keep the choice in the URL so a sorted view can be linked and shared.
+  function changeSort(value) {
+    const next = new URLSearchParams(params);
+    if (value === DEFAULT_SORT) next.delete('sort');
+    else next.set('sort', value);
+    setParams(next, { replace: true });
+  }
 
   useEffect(() => {
     if (saleMode) document.title = 'Sale — Bougie Edition';
@@ -123,6 +140,13 @@ export default function Shop() {
                 <SlidersHorizontal size={16} /><span>Filters</span>
                 <span className={'fbadge' + (activeCount > 0 ? ' show' : '')}>{activeCount}</span>
               </button>
+              <label className="sort-field">
+                <span className="visually-hidden">Sort pieces by</span>
+                <select className="sort-select" value={sort} onChange={(e) => changeSort(e.target.value)}>
+                  {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+                <ChevronDown className="sort-caret" size={15} aria-hidden="true" />
+              </label>
               <span className="count">{filtered.length}{filtered.length === 1 ? ' piece' : ' pieces'}</span>
             </div>
           </div>
@@ -161,7 +185,7 @@ export default function Shop() {
           </div>
 
           <div className="prod-grid" style={{ marginTop: '48px' }}>
-            {filtered.map((p) => <ProductCard key={p.brand + p.name} product={p} index={products.indexOf(p)} />)}
+            {visible.map(({ product, index }) => <ProductCard key={index} product={product} index={index} />)}
           </div>
           {filtered.length === 0 && <div className="noresults show">No pieces match those filters — try removing a brand or widening the price.</div>}
         </div>
