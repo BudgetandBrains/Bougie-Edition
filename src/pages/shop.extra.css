@@ -38,3 +38,79 @@
 .ctx-note::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--pop)}
 
 .noresults{padding:60px 0;text-align:center;color:var(--text-muted);font-family:var(--font-display);font-size:1.4rem}
+
+/* ── Sort control ──────────────────────────────────────────────────── */
+/* Sits beside Filters in the toolbar and borrows its pill shape, but
+   stays visually quieter — sorting reorders, it doesn't narrow. */
+.sort-field{position:relative;display:inline-flex;align-items:center}
+.sort-select{
+  appearance:none;-webkit-appearance:none;
+  font:var(--t-label-m);letter-spacing:var(--track-label);text-transform:uppercase;
+  padding:11px 36px 11px 16px;
+  border:1px solid var(--border-hairline);border-radius:var(--radius-pill);
+  background:transparent;color:var(--text-muted);cursor:pointer;
+  transition:border-color var(--dur-base) var(--ease-luxe),color var(--dur-base) var(--ease-luxe)
+}
+.sort-select:hover{border-color:var(--ink-900);color:var(--ink-900)}
+.sort-select:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.sort-caret{
+  position:absolute;right:14px;pointer-events:none;
+  color:var(--text-faint);transition:color var(--dur-base) var(--ease-luxe)
+}
+.sort-field:hover .sort-caret{color:var(--ink-900)}
+/* The native menu inherits the page font, not the uppercase label styling. */
+.sort-select option{text-transform:none;letter-spacing:normal;color:var(--ink-900)}
+@media (max-width:560px){
+  .toolbar-right{flex-wrap:wrap;gap:12px}
+  .sort-select{padding:10px 32px 10px 14px}
+}
+
+/* ── Price range slider ────────────────────────────────────────────── */
+/* Two native range inputs share one track. Each input is transparent and
+   pointer-transparent; only its thumb takes pointer events, so whichever
+   handle you grab is the one that moves. */
+.price-range{padding-top:4px;max-width:440px}
+.pr-values{display:flex;align-items:baseline;gap:10px;margin-bottom:18px}
+.pr-val{font-family:var(--font-display);font-size:1.15rem;color:var(--text-heading);font-variant-numeric:tabular-nums}
+.pr-dash{color:var(--text-faint)}
+.pr-plus{color:var(--text-faint)}
+
+.pr-track{position:relative;height:24px;display:flex;align-items:center}
+.pr-rail{position:absolute;left:0;right:0;height:2px;background:var(--border-hairline);border-radius:2px}
+.pr-fill{position:absolute;height:2px;background:var(--ink-900);border-radius:2px}
+
+.pr-input{
+  position:absolute;left:0;width:100%;margin:0;height:24px;
+  appearance:none;-webkit-appearance:none;background:transparent;
+  pointer-events:none /* only the thumbs are grabbable */
+}
+.pr-input:focus{outline:none}
+
+.pr-input::-webkit-slider-thumb{
+  -webkit-appearance:none;pointer-events:auto;cursor:grab;
+  width:18px;height:18px;border-radius:50%;
+  background:var(--surface-canvas);border:1.5px solid var(--ink-900);
+  box-shadow:var(--shadow-sm);
+  transition:transform var(--dur-fast) var(--ease-luxe)
+}
+.pr-input::-webkit-slider-thumb:active{cursor:grabbing;transform:scale(1.12)}
+.pr-input:focus-visible::-webkit-slider-thumb{outline:2px solid var(--signal);outline-offset:2px}
+
+.pr-input::-moz-range-thumb{
+  pointer-events:auto;cursor:grab;
+  width:18px;height:18px;border-radius:50%;
+  background:var(--surface-canvas);border:1.5px solid var(--ink-900);
+  box-shadow:var(--shadow-sm)
+}
+.pr-input:focus-visible::-moz-range-thumb{outline:2px solid var(--signal);outline-offset:2px}
+.pr-input::-moz-range-track{background:transparent;border:none}
+
+.pr-ends{
+  display:flex;justify-content:space-between;margin-top:12px;
+  font:var(--t-label-m);letter-spacing:var(--track-label);
+  text-transform:uppercase;color:var(--text-faint);font-variant-numeric:tabular-nums
+}
+@media (prefers-reduced-motion:reduce){
+  .pr-input::-webkit-slider-thumb{transition:none}
+  .pr-input::-webkit-slider-thumb:active{transform:none}
+}
