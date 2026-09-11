@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import Reveal from '../components/Reveal';
 import PriceBlock from '../components/PriceBlock';
 import ConditionMeter from '../components/ConditionMeter';
+import RelatedProducts from '../components/RelatedProducts';
 import { useCatalog } from '../context/useCatalog';
 import { IMAGE_MAX } from '../data/catalogConfig';
 import './product.extra.css';
@@ -41,6 +42,9 @@ export default function Product() {
   const { products, loading } = useCatalog();
   const idx = id !== undefined ? parseInt(id, 10) : NaN;
   const product = !loading && products.length && !Number.isNaN(idx) && products[idx] ? products[idx] : (!loading ? products[0] || DEMO : null);
+  // The index actually on screen — the line above falls back to products[0]
+  // for a missing or out-of-range id, so suggestions must follow that same piece.
+  const catalogIndex = products.length ? (!Number.isNaN(idx) && products[idx] ? idx : 0) : -1;
 
   const folderImgs = useFolderImages(product ? product.imageBase : '', product ? (product.imageExt || '.jpg') : '.jpg');
 
@@ -131,6 +135,8 @@ export default function Product() {
           </div>
         </div>
       </section>
+
+      <RelatedProducts products={products} index={catalogIndex} />
 
       <section className="section dark-band" data-header-dark="1">
         <div className="container center">
