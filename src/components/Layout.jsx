@@ -9,6 +9,7 @@ function pageKeyFor(pathname) {
   if (pathname.startsWith('/shop') || pathname.startsWith('/category') || pathname.startsWith('/product')) return 'shop';
   if (pathname.startsWith('/drops')) return 'drops';
   if (pathname.startsWith('/consultation')) return 'consult';
+  if (pathname.startsWith('/authentication')) return 'auth';
   if (pathname.startsWith('/consign')) return 'consign';
   if (pathname.startsWith('/sourcing')) return 'source';
   return '';

@@ -5,6 +5,10 @@ import Reveal from '../components/Reveal';
 import ProductCard from '../components/ProductCard';
 import { useCatalog } from '../context/useCatalog';
 
+const CAT_LABELS = { bags: 'Bags', backpack: 'Backpacks', backpacks: 'Backpacks', jewelry: 'Jewellery', jewellery: 'Jewellery', novelty: 'Novelty', watches: 'Watches', belts: 'Belts & accessories', accessories: 'Accessories' };
+const CAT_SUB = { bags: 'Flaps · Totes · Crossbody', backpack: 'Everyday · Travel', backpacks: 'Everyday · Travel', jewelry: 'Necklaces · Pendants · Chains', jewellery: 'Necklaces · Pendants · Chains', novelty: 'Rare · Collectible · Gifts', watches: 'Steel · Gold · Complications', belts: 'Leather · Monogram · Hardware' };
+const catLabel = (v) => CAT_LABELS[v] || (v ? v.charAt(0).toUpperCase() + v.slice(1) : v);
+
 export default function Home() {
   const { products } = useCatalog();
   const marqueeRef = useRef(null);
@@ -38,6 +42,16 @@ export default function Home() {
   const iconsShow = icons.length ? icons : products.slice(0, 4);
   const justIn = products.filter((p) => (p.tags || []).includes('New in')).slice(0, 4);
   const justInShow = justIn.length ? justIn : products.slice(4, 8);
+
+  // "Shop by category" cards: one per category present in the sheet, using the
+  // first product image of that category (pictures come straight from the sheet).
+  const categoryCards = [];
+  products.forEach((p) => {
+    if (!p.category) return;
+    let entry = categoryCards.find((m) => m.cat === p.category);
+    if (!entry) { entry = { cat: p.category, img: '' }; categoryCards.push(entry); }
+    if (!entry.img && p.images && p.images[0]) entry.img = p.images[0];
+  });
 
   return (
     <>
@@ -78,33 +92,15 @@ export default function Home() {
             <Reveal as={Link} className="link-u reveal-d2" to="/shop" style={{ color: 'var(--ink-900)' }}>Shop all</Reveal>
           </div>
           <div className="cat-grid">
-            <Reveal as={Link} className="cat-card" to="/category/bags">
-              <img src="/assets/products/IMG_6656.jpg" alt="Bags" />
-              <div className="cat-meta"><div><h3>Bags</h3><div className="ct">Flaps · Totes · Crossbody</div></div><span className="go"><ArrowUpRight /></span></div>
-            </Reveal>
-            <Reveal as={Link} className="cat-card reveal-d1" to="/category/belts">
-              <img src="/assets/products/IMG_6963.jpg" alt="Belts" />
-              <div className="cat-meta"><div><h3>Belts</h3><div className="ct">Leather · Monogram · Hardware</div></div><span className="go"><ArrowUpRight /></span></div>
-            </Reveal>
-            <Reveal as={Link} className="cat-card reveal-d2" to="/shop">
-              <img src="/assets/products/IMG_7226.jpg" alt="Jewellery" />
-              <div className="cat-meta"><div><h3>Jewellery</h3><div className="ct">Necklaces · Pendants · Chains</div></div><span className="go"><ArrowUpRight /></span></div>
-            </Reveal>
+            {categoryCards.map((c, i) => (
+              <Reveal as={Link} key={c.cat} className={'cat-card' + (i > 0 ? ' reveal-d' + Math.min(i, 4) : '')} to={`/shop?cat=${encodeURIComponent(c.cat)}`}>
+                {c.img
+                  ? <img src={c.img} alt={catLabel(c.cat)} />
+                  : <div className="ph"><span className="lbl">{catLabel(c.cat)}</span></div>}
+                <div className="cat-meta"><div><h3>{catLabel(c.cat)}</h3><div className="ct">{CAT_SUB[c.cat] || 'Authenticated pieces'}</div></div><span className="go"><ArrowUpRight /></span></div>
+              </Reveal>
+            ))}
           </div>
-        </div>
-      </section>
-
-      <section className="mosaic-sec dark-band warm" data-header-dark="1">
-        <div className="mosaic">
-          <Reveal><img src="/assets/products/IMG_6690.jpg" alt="Metallic flap with dust bag and cards" /></Reveal>
-          <Reveal className="reveal-d1"><img src="/assets/products/IMG_6751.jpg" alt="Hardware and zipper detail" /></Reveal>
-          <Reveal className="mosaic-text reveal-d2">
-            <p className="eyebrow on-dark">03 — The promise</p>
-            <h3 className="mosaic-title">The art of <span className="serif-italic">authentication</span></h3>
-            <p>We source rare and sought-after pieces, then verify every one in hand — materials, hardware, serials and provenance — before it is offered. So the only thing you inherit is the object itself.</p>
-            <p>Every piece ships with a 100% financially-backed Certificate of Authenticity from leading third-party authenticators — Entrupy and LegitApp — and leaves our atelier exactly as it arrived. Zero repainted or repaired bags, ever.</p>
-          </Reveal>
-          <Reveal className="reveal-d3"><img src="/assets/products/IMG_6745.jpg" alt="Monogram leather goods detail" /></Reveal>
         </div>
       </section>
 
@@ -120,7 +116,7 @@ export default function Home() {
         <div className="container">
           <div className="sec-head">
             <div>
-              <Reveal as="p" className="eyebrow">04 — Just in</Reveal>
+              <Reveal as="p" className="eyebrow">03 — Just in</Reveal>
               <Reveal as="h2" className="sec-title reveal-d1">Newly <span className="shift serif-italic">sourced</span></Reveal>
             </div>
             <Reveal as={Link} className="link-u reveal-d2" to="/shop?sort=new" style={{ color: 'var(--ink-900)' }}>See everything new</Reveal>
@@ -135,7 +131,7 @@ export default function Home() {
         <div className="container">
           <div className="sec-head">
             <div>
-              <Reveal as="p" className="eyebrow on-dark">05 — The labels we carry</Reveal>
+              <Reveal as="p" className="eyebrow on-dark">04 — The labels we carry</Reveal>
               <Reveal as="h2" className="sec-title reveal-d1">In good <span className="shift serif-italic">company</span></Reveal>
             </div>
             <Reveal as={Link} className="link-u reveal-d2" to="/brands" style={{ color: 'var(--cream)' }}>All brands</Reveal>
@@ -152,7 +148,7 @@ export default function Home() {
         <div className="container">
           <div className="sec-head">
             <div>
-              <Reveal as="p" className="eyebrow">06 — In their words</Reveal>
+              <Reveal as="p" className="eyebrow">05 — In their words</Reveal>
               <Reveal as="h2" className="sec-title reveal-d1">What clients <span className="serif-italic">say</span></Reveal>
             </div>
           </div>
@@ -180,7 +176,7 @@ export default function Home() {
         <div className="container">
           <div className="sec-head">
             <div>
-              <Reveal as="p" className="eyebrow">07 — Straight from the atelier</Reveal>
+              <Reveal as="p" className="eyebrow">06 — Straight from the atelier</Reveal>
               <Reveal as="h2" className="sec-title reveal-d1">See it <span className="serif-italic">up close</span></Reveal>
             </div>
           </div>
@@ -201,7 +197,7 @@ export default function Home() {
         <div className="container">
           <div className="sec-head">
             <div>
-              <Reveal as="p" className="eyebrow on-dark">08 — Work with us</Reveal>
+              <Reveal as="p" className="eyebrow on-dark">07 — Work with us</Reveal>
               <Reveal as="h2" className="sec-title reveal-d1" style={{ color: 'var(--cream)' }}>Beyond the <span className="shift serif-italic">edit</span></Reveal>
             </div>
           </div>
@@ -229,7 +225,7 @@ export default function Home() {
         <div className="container">
           <div className="stat-head">
             <div>
-              <Reveal as="p" className="eyebrow">09 — The house</Reveal>
+              <Reveal as="p" className="eyebrow">08 — The house</Reveal>
               <Reveal as="h2" className="sec-title reveal-d1">Numbers we <span className="serif-italic">stand behind</span></Reveal>
             </div>
             <Reveal className="stat-intro reveal-d2">

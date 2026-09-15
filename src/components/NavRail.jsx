@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Sparkles, Upload, Search, CalendarCheck, ChevronDown } from 'lucide-react';
+import { ShoppingBag, Sparkles, Upload, Search, CalendarCheck, ChevronDown, ShieldCheck } from 'lucide-react';
 import { useCatalog } from '../context/useCatalog';
 
 const CAT_LABELS = { bags: 'Bags', backpack: 'Backpacks', backpacks: 'Backpacks', jewelry: 'Jewellery', jewellery: 'Jewellery', novelty: 'Novelty', watches: 'Watches', belts: 'Belts & accessories', accessories: 'Accessories' };
@@ -8,6 +8,7 @@ const catLabel = (v) => CAT_LABELS[v] || (v ? v.charAt(0).toUpperCase() + v.slic
 
 const SECONDARY = [
   { key: 'drops', icon: Sparkles, label: 'New Arrivals', href: '/drops' },
+  { key: 'auth', icon: ShieldCheck, label: 'Authentication', href: '/authentication' },
   { key: 'consult', icon: CalendarCheck, label: 'Book Consultation', href: '/consultation' },
   { key: 'consign', icon: Upload, label: 'Consign', href: '/consign' },
   { key: 'source', icon: Search, label: 'Source', href: '/sourcing' }
