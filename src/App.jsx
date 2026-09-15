@@ -11,6 +11,7 @@ import About from './pages/About';
 import Consign from './pages/Consign';
 import Sourcing from './pages/Sourcing';
 import Consultation from './pages/Consultation';
+import Authentication from './pages/Authentication';
 import Disclaimer from './pages/Disclaimer';
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/consign" element={<Consign />} />
         <Route path="/sourcing" element={<Sourcing />} />
         <Route path="/consultation" element={<Consultation />} />
+        <Route path="/authentication" element={<Authentication />} />
         <Route path="/disclaimer" element={<Disclaimer />} />
       </Route>
     </Routes>
