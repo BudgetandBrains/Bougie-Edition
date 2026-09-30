@@ -83,6 +83,17 @@ function parseCSV(text){
 
 function norm(s){ return (s||'').toString().trim().toLowerCase().replace(/[^a-z0-9]/g,''); }
 
+// The site groups everything into three shelves: Bags, Accessories, Novelty.
+// Backpacks count as Bags; jewellery/belts/watches/etc. become Accessories.
+export var CATEGORY_GROUPS = { bags: 'Bags', accessories: 'Accessories', novelty: 'Novelty' };
+export function categoryGroup(cat){
+  var c = norm(cat);
+  if(!c) return '';
+  if(c === 'bags' || c === 'bag' || c === 'backpack' || c === 'backpacks') return 'bags';
+  if(c === 'novelty' || c === 'novelties') return 'novelty';
+  return 'accessories';
+}
+
 function rowsToProducts(rows){
   if(!rows.length) return [];
   var head = rows[0].map(norm);
@@ -103,7 +114,8 @@ function rowsToProducts(rows){
     img1: col(['image1','imagelink1','image']),
     img2: col(['image2','imagelink2']),
     img3: col(['image3','imagelink3']),
-    coa: col(['coa','coalink','certificate','certificateurl','certificatelink','certificateofauthenticity','authentication','authenticationcertificate'])
+    coa: col(['coa','coalink','certificate','certificateurl','certificatelink','certificateofauthenticity','authentication','authenticationcertificate']),
+    ebay: col(['ebay','ebaylink','ebaylisting','ebayurl','ebaylistingurl','listing','listingurl'])
   };
   var out = [];
   for(var r=1;r<rows.length;r++){
@@ -122,6 +134,7 @@ function rowsToProducts(rows){
       condition: (row[idx.condition]||'').trim(),
       description: (row[idx.description]||'').trim(),
       coa: idx.coa > -1 ? (row[idx.coa]||'').trim() : '',
+      ebay: idx.ebay > -1 ? (row[idx.ebay]||'').trim() : '',
       images: []
     };
 
@@ -158,6 +171,8 @@ function decorate(p){
   p.soldOut = SOLD_STATUSES.indexOf(s) > -1;
   // ensure a tags[] array exists (fallback data only carries a single tag string)
   if(!p.tags) p.tags = (p.tag||'').split(',').map(function(t){ return t.trim(); }).filter(Boolean);
+  // canonical shelf: bags / accessories / novelty
+  p.categoryGroup = categoryGroup(p.category);
   return p;
 }
 

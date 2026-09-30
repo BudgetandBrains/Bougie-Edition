@@ -4,27 +4,15 @@ import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import Reveal from '../components/Reveal';
 import ProductCard from '../components/ProductCard';
 import { useCatalog } from '../context/useCatalog';
+import { CATEGORY_GROUPS } from '../data/catalog';
 
-const CAT_LABELS = { bags: 'Bags', backpack: 'Backpacks', backpacks: 'Backpacks', jewelry: 'Jewellery', jewellery: 'Jewellery', novelty: 'Novelty', watches: 'Watches', belts: 'Belts & accessories', accessories: 'Accessories' };
-const CAT_SUB = { bags: 'Flaps · Totes · Crossbody', backpack: 'Everyday · Travel', backpacks: 'Everyday · Travel', jewelry: 'Necklaces · Pendants · Chains', jewellery: 'Necklaces · Pendants · Chains', novelty: 'Rare · Collectible · Gifts', watches: 'Steel · Gold · Complications', belts: 'Leather · Monogram · Hardware' };
-const catLabel = (v) => CAT_LABELS[v] || (v ? v.charAt(0).toUpperCase() + v.slice(1) : v);
+const CAT_SUB = { bags: 'Flaps · Totes · Crossbody · Backpacks', accessories: 'Jewellery · Belts · Small leather goods', novelty: 'Rare · Collectible · Gifts' };
+const CAT_ORDER = ['bags', 'accessories', 'novelty'];
+const catLabel = (v) => CATEGORY_GROUPS[v] || (v ? v.charAt(0).toUpperCase() + v.slice(1) : v);
 
 export default function Home() {
   const { products } = useCatalog();
-  const marqueeRef = useRef(null);
   const videosWrapRef = useRef(null);
-
-  useEffect(() => {
-    function onScroll() {
-      const m = marqueeRef.current;
-      if (!m) return;
-      const x = -(window.pageYOffset * 0.18) % (m.scrollWidth / 3 || 1);
-      m.style.transform = 'translate3d(' + x + 'px,0,0)';
-    }
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   useEffect(() => {
     const wrap = videosWrapRef.current;
@@ -40,18 +28,18 @@ export default function Home() {
 
   const icons = products.filter((p) => (p.tags || []).includes('Featured') || (p.tags || []).includes('Best seller')).slice(0, 4);
   const iconsShow = icons.length ? icons : products.slice(0, 4);
-  const justIn = products.filter((p) => (p.tags || []).includes('New in')).slice(0, 4);
-  const justInShow = justIn.length ? justIn : products.slice(4, 8);
 
-  // "Shop by category" cards: one per category present in the sheet, using the
-  // first product image of that category (pictures come straight from the sheet).
+  // "Shop by category" cards: one per shelf (Bags / Accessories / Novelty), using
+  // the first product image of that shelf (pictures come straight from the sheet).
   const categoryCards = [];
   products.forEach((p) => {
-    if (!p.category) return;
-    let entry = categoryCards.find((m) => m.cat === p.category);
-    if (!entry) { entry = { cat: p.category, img: '' }; categoryCards.push(entry); }
+    const g = p.categoryGroup;
+    if (!g) return;
+    let entry = categoryCards.find((m) => m.cat === g);
+    if (!entry) { entry = { cat: g, img: '' }; categoryCards.push(entry); }
     if (!entry.img && p.images && p.images[0]) entry.img = p.images[0];
   });
+  categoryCards.sort((a, b) => (CAT_ORDER.indexOf(a.cat) < 0 ? 9 : CAT_ORDER.indexOf(a.cat)) - (CAT_ORDER.indexOf(b.cat) < 0 ? 9 : CAT_ORDER.indexOf(b.cat)));
 
   return (
     <>
@@ -104,34 +92,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="marquee-sec" aria-hidden="true">
-        <div className="marquee" id="marquee" ref={marqueeRef}>
-          {[0, 1, 2].map((i) => (
-            <span className="marquee-item" key={i}>Authenticated<span className="marquee-sep"></span>Zero repainted or repaired bags<span className="marquee-sep"></span>Lifetime restoration<span className="marquee-sep"></span>Curated edit<span className="marquee-sep"></span>Guaranteed provenance<span className="marquee-sep"></span></span>
-          ))}
-        </div>
-      </section>
-
-      <section className="section" id="new">
-        <div className="container">
-          <div className="sec-head">
-            <div>
-              <Reveal as="p" className="eyebrow">03 — Just in</Reveal>
-              <Reveal as="h2" className="sec-title reveal-d1">Newly <span className="shift serif-italic">sourced</span></Reveal>
-            </div>
-            <Reveal as={Link} className="link-u reveal-d2" to="/shop?sort=new" style={{ color: 'var(--ink-900)' }}>See everything new</Reveal>
-          </div>
-          <div className="prod-grid" id="newGrid">
-            {justInShow.map((p) => <ProductCard key={p.brand + p.name} product={p} index={products.indexOf(p)} />)}
-          </div>
-        </div>
-      </section>
-
       <section className="section dark-band warm" id="brands" data-header-dark="1">
         <div className="container">
           <div className="sec-head">
             <div>
-              <Reveal as="p" className="eyebrow on-dark">04 — The labels we carry</Reveal>
+              <Reveal as="p" className="eyebrow on-dark">03 — The labels we carry</Reveal>
               <Reveal as="h2" className="sec-title reveal-d1">In good <span className="shift serif-italic">company</span></Reveal>
             </div>
             <Reveal as={Link} className="link-u reveal-d2" to="/brands" style={{ color: 'var(--cream)' }}>All brands</Reveal>
@@ -148,7 +113,7 @@ export default function Home() {
         <div className="container">
           <div className="sec-head">
             <div>
-              <Reveal as="p" className="eyebrow">05 — In their words</Reveal>
+              <Reveal as="p" className="eyebrow">04 — In their words</Reveal>
               <Reveal as="h2" className="sec-title reveal-d1">What clients <span className="serif-italic">say</span></Reveal>
             </div>
           </div>
@@ -176,7 +141,7 @@ export default function Home() {
         <div className="container">
           <div className="sec-head">
             <div>
-              <Reveal as="p" className="eyebrow">06 — Straight from the atelier</Reveal>
+              <Reveal as="p" className="eyebrow">05 — Straight from the atelier</Reveal>
               <Reveal as="h2" className="sec-title reveal-d1">See it <span className="serif-italic">up close</span></Reveal>
             </div>
           </div>
@@ -197,7 +162,7 @@ export default function Home() {
         <div className="container">
           <div className="sec-head">
             <div>
-              <Reveal as="p" className="eyebrow on-dark">07 — Work with us</Reveal>
+              <Reveal as="p" className="eyebrow on-dark">06 — Work with us</Reveal>
               <Reveal as="h2" className="sec-title reveal-d1" style={{ color: 'var(--cream)' }}>Beyond the <span className="shift serif-italic">edit</span></Reveal>
             </div>
           </div>
@@ -221,26 +186,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section stat-band" id="house">
-        <div className="container">
-          <div className="stat-head">
-            <div>
-              <Reveal as="p" className="eyebrow">08 — The house</Reveal>
-              <Reveal as="h2" className="sec-title reveal-d1">Numbers we <span className="serif-italic">stand behind</span></Reveal>
-            </div>
-            <Reveal className="stat-intro reveal-d2">
-              <p>Every figure reflects a promise kept — pieces sourced with care, authenticated without exception, and guaranteed in writing.</p>
-              <Link className="btn btn-ink" to="/about"><span>Our story</span><ArrowRight className="arrow" size={16} /></Link>
-            </Reveal>
-          </div>
-          <div className="stat-row">
-            <Reveal className="stat"><div className="num">12<span>+</span></div><div className="lbl2">Years sourcing</div></Reveal>
-            <Reveal className="stat reveal-d1"><div className="num">9,400<span>+</span></div><div className="lbl2">Pieces authenticated</div></Reveal>
-            <Reveal className="stat reveal-d2"><div className="num">60<span>+</span></div><div className="lbl2">Maisons carried</div></Reveal>
-            <Reveal className="stat reveal-d3"><div className="num">100<span>%</span></div><div className="lbl2">Independently verified</div><div className="bar"></div></Reveal>
-          </div>
-        </div>
-      </section>
     </>
   );
 }

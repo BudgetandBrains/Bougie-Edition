@@ -1,17 +1,19 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Sparkles, Upload, Search, CalendarCheck, ChevronDown, ShieldCheck } from 'lucide-react';
+import { ShoppingBag, Sparkles, Upload, Search, CalendarCheck, ChevronDown, ShieldCheck, HelpCircle } from 'lucide-react';
 import { useCatalog } from '../context/useCatalog';
+import { CATEGORY_GROUPS } from '../data/catalog';
 
-const CAT_LABELS = { bags: 'Bags', backpack: 'Backpacks', backpacks: 'Backpacks', jewelry: 'Jewellery', jewellery: 'Jewellery', novelty: 'Novelty', watches: 'Watches', belts: 'Belts & accessories', accessories: 'Accessories' };
-const catLabel = (v) => CAT_LABELS[v] || (v ? v.charAt(0).toUpperCase() + v.slice(1) : v);
+const catLabel = (v) => CATEGORY_GROUPS[v] || (v ? v.charAt(0).toUpperCase() + v.slice(1) : v);
+const CAT_ORDER = ['bags', 'accessories', 'novelty'];
 
 const SECONDARY = [
   { key: 'drops', icon: Sparkles, label: 'New Arrivals', href: '/drops' },
   { key: 'auth', icon: ShieldCheck, label: 'Authentication', href: '/authentication' },
   { key: 'consult', icon: CalendarCheck, label: 'Book Consultation', href: '/consultation' },
-  { key: 'consign', icon: Upload, label: 'Consign', href: '/consign' },
-  { key: 'source', icon: Search, label: 'Source', href: '/sourcing' }
+  { key: 'consign', icon: Upload, label: 'Consign with us', href: '/consign' },
+  { key: 'source', icon: Search, label: 'Source for me', href: '/sourcing' },
+  { key: 'faq', icon: HelpCircle, label: 'FAQ', href: '/faq' }
 ];
 
 export default function NavRail({ open, page, onClose }) {
@@ -20,8 +22,8 @@ export default function NavRail({ open, page, onClose }) {
 
   const cats = useMemo(() => {
     const seen = [];
-    products.forEach((p) => { if (p.category && !seen.includes(p.category)) seen.push(p.category); });
-    return seen.sort();
+    products.forEach((p) => { const g = p.categoryGroup; if (g && !seen.includes(g)) seen.push(g); });
+    return seen.sort((a, b) => (CAT_ORDER.indexOf(a) < 0 ? 9 : CAT_ORDER.indexOf(a)) - (CAT_ORDER.indexOf(b) < 0 ? 9 : CAT_ORDER.indexOf(b)));
   }, [products]);
 
   return (
@@ -30,7 +32,7 @@ export default function NavRail({ open, page, onClose }) {
       <nav className={'nav-rail' + (open ? ' open pinned' : '')} aria-label="Main menu">
         <div className="rail-brand">Bougie Edition</div>
 
-        {/* Shop → cascades to the categories that actually exist in the catalog */}
+        {/* Shop → cascades to Bags / Accessories / Novelty */}
         <button
           type="button"
           className={'nav-item nav-parent' + (page === 'shop' ? ' current' : '')}

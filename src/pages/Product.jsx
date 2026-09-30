@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import Reveal from '../components/Reveal';
 import PriceBlock from '../components/PriceBlock';
 import ConditionMeter from '../components/ConditionMeter';
@@ -36,6 +36,56 @@ function useFolderImages(base, ext) {
   return imgs;
 }
 
+// Swipeable image carousel — preview every product photo.
+function Gallery({ images, name }) {
+  const [active, setActive] = useState(0);
+  const touch = useRef(null);
+  useEffect(() => { setActive(0); }, [images.length, name]);
+
+  if (!images.length) {
+    return (
+      <div className="pgallery">
+        <div className="ph main"><span className="lbl">Product photo — front, on white</span></div>
+        <div className="ph sub"><span className="lbl">Interior &amp; serial</span></div>
+        <div className="ph sub"><span className="lbl">Hardware detail</span></div>
+      </div>
+    );
+  }
+
+  const go = (d) => setActive((i) => (i + d + images.length) % images.length);
+  const onStart = (e) => { touch.current = e.touches[0].clientX; };
+  const onEnd = (e) => {
+    if (touch.current == null) return;
+    const dx = e.changedTouches[0].clientX - touch.current;
+    if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+    touch.current = null;
+  };
+
+  return (
+    <div className="pcarousel">
+      <div className="pc-stage" onTouchStart={onStart} onTouchEnd={onEnd}>
+        <img src={images[active]} alt={`${name} — image ${active + 1}`} />
+        {images.length > 1 && (
+          <>
+            <button type="button" className="pc-arrow pc-prev" aria-label="Previous image" onClick={() => go(-1)}><ChevronLeft size={20} /></button>
+            <button type="button" className="pc-arrow pc-next" aria-label="Next image" onClick={() => go(1)}><ChevronRight size={20} /></button>
+            <div className="pc-count">{active + 1} / {images.length}</div>
+          </>
+        )}
+      </div>
+      {images.length > 1 && (
+        <div className="pc-thumbs">
+          {images.map((src, i) => (
+            <button type="button" key={src} className={'pc-thumb' + (i === active ? ' on' : '')} onClick={() => setActive(i)} aria-label={`View image ${i + 1}`}>
+              <img src={src} alt="" />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Product() {
   const { id } = useParams();
   const { products, loading } = useCatalog();
@@ -52,11 +102,11 @@ export default function Product() {
     return <section className="section container" style={{ paddingTop: 'calc(var(--header-h) + 64px)' }}><p className="eyebrow">Loading…</p></section>;
   }
 
-  // In folder mode show every discovered image; otherwise the explicit columns.
   const images = product.imageBase
     ? (folderImgs.length ? folderImgs : (product.images || []))
     : (product.images && product.images.length ? product.images : []);
   const description = product.description || DEMO.description;
+  const brand = product.brand || 'the brand';
 
   return (
     <>
@@ -65,49 +115,49 @@ export default function Product() {
           <Link to="/shop" className="link-u reveal" style={{ color: 'var(--text-muted)', display: 'inline-flex', marginBottom: '36px' }}>← Back to the collection</Link>
 
           <div className="pwrap">
-            <Reveal className="pgallery">
-              {images.length === 0 && (
-                <>
-                  <div className="ph main"><span className="lbl">Product photo — front, on white</span></div>
-                  <div className="ph sub"><span className="lbl">Interior &amp; serial</span></div>
-                  <div className="ph sub"><span className="lbl">Hardware detail</span></div>
-                </>
-              )}
-              {images.map((src, i) => (
-                <img key={src} className={i === 0 ? 'main-img' : 'sub-img'} src={src} alt={i === 0 ? product.name : ''} />
-              ))}
-            </Reveal>
+            <Reveal><Gallery images={images} name={product.name} /></Reveal>
 
             <Reveal className="pdetail reveal-d1">
-              <p className="eyebrow">{(product.category || 'bags').replace(/^\w/, (c) => c.toUpperCase())} · {product.brand}</p>
-              <h1 className="page-title" style={{ fontSize: 'clamp(2rem,3.4vw,2.9rem)', margin: '16px 0 6px' }}>{product.name}</h1>
-              <p style={{ color: 'var(--text-faint)', fontSize: '.95rem', margin: '0 0 22px' }}>{description}</p>
+              <p className="eyebrow">{(product.categoryGroup || product.category || 'bags').replace(/^\w/, (c) => c.toUpperCase())} · {product.brand}</p>
+              <h1 className="page-title" style={{ fontSize: 'clamp(2rem,3.4vw,2.9rem)', margin: '16px 0 12px' }}>{product.name}</h1>
 
               <PriceBlock usd={product.price} note="Authenticated" style={{ marginBottom: '22px' }} />
 
               <ConditionMeter condition={product.condition} />
 
+              {/* Call-out: the piece's own description from the sheet */}
+              <div className="callout product-callout">
+                <h4>Details</h4>
+                <p>{description}</p>
+              </div>
+
               <p className="cert-line"><span className="dotb"></span>Ships with a Certificate of Authenticity from Entrupy or LegitApp, alongside our own in-house verification. Zero repainted or repaired bags — every piece leaves our atelier exactly as it arrived.</p>
 
-              {product.coa && (
-                <p style={{ margin: '16px 0 0' }}>
-                  <a className="coa-link" href={product.coa} target="_blank" rel="noopener noreferrer">
-                    Certificate of authentication <span aria-hidden="true">↗</span>
-                  </a>
+              {(product.coa || product.ebay) && (
+                <p className="product-links">
+                  {product.coa && (
+                    <a className="coa-link" href={product.coa} target="_blank" rel="noopener noreferrer">
+                      Certificate of authentication <span aria-hidden="true">↗</span>
+                    </a>
+                  )}
+                  {product.ebay && (
+                    <a className="coa-link coa-link--alt" href={product.ebay} target="_blank" rel="noopener noreferrer">
+                      View eBay listing <span aria-hidden="true">↗</span>
+                    </a>
+                  )}
                 </p>
               )}
 
-              <div style={{ display: 'flex', gap: '14px', margin: '30px 0 6px', flexWrap: 'wrap' }}>
-                <button className="btn btn-gold" type="button" disabled={product.soldOut} style={{ border: 'none', flex: 1, justifyContent: 'center', minWidth: '200px' }}><span>{product.soldOut ? 'Sold' : 'Add to cart'}</span></button>
-                <Link className="btn btn-ghost" to="/consultation"><span>{product.soldOut ? 'Source a similar piece' : 'Ask about this piece'}</span></Link>
+              <div style={{ margin: '30px 0 6px' }}>
+                {product.soldOut ? (
+                  <Link className="btn btn-gold" to="/sourcing" style={{ width: '100%', justifyContent: 'center' }}><span>Sold — source a similar piece</span></Link>
+                ) : (
+                  <Link className="btn btn-gold" to="/consultation" style={{ width: '100%', justifyContent: 'center' }}><span>Submit an inquiry to buy</span><ArrowRight className="arrow" size={16} /></Link>
+                )}
               </div>
 
               <div style={{ marginTop: '28px' }}>
                 <details className="acc" open>
-                  <summary>Details &amp; materials<span className="acc-ic"></span></summary>
-                  <div className="acc-body"><p>Caviar-grain calfskin, hand-quilted in the diamond motif, gold-tone hardware with a brushed finish. Comes with dust bag, box and authenticity card.</p></div>
-                </details>
-                <details className="acc">
                   <summary>Authentication<span className="acc-ic"></span></summary>
                   <div className="acc-body">
                     <p>Independently authenticated in hand — hardware, stitching, serials and provenance — before it is offered.</p>
@@ -118,7 +168,7 @@ export default function Product() {
                 <details className="acc">
                   <summary>Repair before delivery<span className="acc-ic"></span></summary>
                   <div className="acc-body">
-                    <p>Prefer it freshly serviced? If you'd like us to send this bag to a Chanel store or spa for repair before it ships, we're happy to arrange it.</p>
+                    <p>Prefer it freshly serviced? If you'd like us to send this piece to a {brand} store or spa for repair before it ships, we're happy to arrange it.</p>
                     <p>The store's repair charge is simply added to your invoice, and we'll share the authentic store repair receipt with you on delivery. Just mention it when you reserve the piece.</p>
                   </div>
                 </details>
