@@ -12,6 +12,7 @@ function pageKeyFor(pathname) {
   if (pathname.startsWith('/authentication')) return 'auth';
   if (pathname.startsWith('/consign')) return 'consign';
   if (pathname.startsWith('/sourcing')) return 'source';
+  if (pathname.startsWith('/faq')) return 'faq';
   return '';
 }
 

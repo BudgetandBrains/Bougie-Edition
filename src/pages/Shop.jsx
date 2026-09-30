@@ -1,20 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { SlidersHorizontal } from 'lucide-react';
 import Reveal from '../components/Reveal';
 import ProductCard from '../components/ProductCard';
-import PriceRange from '../components/PriceRange';
 import { useCatalog } from '../context/useCatalog';
+import { CATEGORY_GROUPS } from '../data/catalog';
 import { useCurrency } from '../context/CurrencyContext';
-import { SORT_OPTIONS, DEFAULT_SORT, normalizeSort, sortProducts } from '../data/sort';
 import './shop.extra.css';
 
-const CAT_LABELS = { bags: 'Bags', backpack: 'Backpacks', backpacks: 'Backpacks', jewelry: 'Jewellery', jewellery: 'Jewellery', novelty: 'Novelty', watches: 'Watches', belts: 'Belts & accessories', accessories: 'Accessories' };
-const catLabel = (v) => CAT_LABELS[v] || (v ? v.charAt(0).toUpperCase() + v.slice(1) : v);
+const catLabel = (v) => CATEGORY_GROUPS[v] || (v ? v.charAt(0).toUpperCase() + v.slice(1) : v);
+const CAT_ORDER = ['bags', 'accessories', 'novelty'];
 const TAG_ORDER = ['New in', 'Best seller', 'Sale', 'Featured', 'Limited Edition', 'Rare Find', 'Giftable'];
-// Price filter granularity — the slider's step, and what the top of the
-// scale is rounded up to.
-const PRICE_STEP = 500;
+const STEP = 500;
 
 function toggle(arr, val) {
   return arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val];
@@ -23,23 +20,32 @@ function toggle(arr, val) {
 export default function Shop() {
   const { products } = useCatalog();
   const { fmt } = useCurrency();
-  const [params, setParams] = useSearchParams();
+  const [params] = useSearchParams();
   const saleMode = params.get('sale') === '1';
-  const dept = params.get('dept');
+  const query = (params.get('q') || '').trim();
   const initialCat = params.get('cat') || '';
   const initialTag = params.get('tag') || '';
-  const sort = normalizeSort(params.get('sort'));
 
-  const [cat, setCat] = useState(initialCat);            // single-select category
-  const [tags, setTags] = useState(initialTag ? [initialTag] : []); // multi-select tags
+  const priceCap = useMemo(() => {
+    const m = products.reduce((mx, p) => Math.max(mx, p.price || 0), 0);
+    return Math.max(STEP, Math.ceil(m / STEP) * STEP);
+  }, [products]);
+
+  const [cat, setCat] = useState(initialCat);
+  const [tags, setTags] = useState(initialTag ? [initialTag] : []);
   const [brands, setBrands] = useState([]);
-  const [priceRange, setPriceRange] = useState(null); // null = full span
+  const [priceMin, setPriceMin] = useState(0);
+  const [priceMax, setPriceMax] = useState(0); // 0 = "up to the cap" (untouched)
+  const [sort, setSort] = useState('featured');
   const [advOpen, setAdvOpen] = useState(false);
+
+  const hiPrice = priceMax > 0 ? priceMax : priceCap;
+  const priceActive = priceMin > 0 || hiPrice < priceCap;
 
   const catList = useMemo(() => {
     const seen = [];
-    products.forEach((p) => { if (p.category && !seen.includes(p.category)) seen.push(p.category); });
-    return seen.sort();
+    products.forEach((p) => { const g = p.categoryGroup; if (g && !seen.includes(g)) seen.push(g); });
+    return seen.sort((a, b) => (CAT_ORDER.indexOf(a) < 0 ? 99 : CAT_ORDER.indexOf(a)) - (CAT_ORDER.indexOf(b) < 0 ? 99 : CAT_ORDER.indexOf(b)));
   }, [products]);
 
   const tagList = useMemo(() => {
@@ -51,78 +57,62 @@ export default function Shop() {
     });
   }, [products]);
 
-  // Top of the scale comes from the catalog itself, rounded up to the next
-  // PRICE_STEP, so the slider always covers the real stock — and follows it
-  // when the sheet changes, instead of the old fixed bands.
-  const priceCeiling = useMemo(() => {
-    const top = products.reduce((m, p) => Math.max(m, p.price || 0), 0);
-    return Math.max(Math.ceil(top / PRICE_STEP) * PRICE_STEP, PRICE_STEP);
-  }, [products]);
-
-  // Held as null until touched, so a range chosen before the catalog
-  // finished loading is never silently widened by a later ceiling.
-  const [lo, hi] = priceRange
-    ? [Math.min(priceRange[0], priceCeiling), Math.min(priceRange[1], priceCeiling)]
-    : [0, priceCeiling];
-  const priceActive = lo > 0 || hi < priceCeiling;
-
   const brandList = useMemo(() => {
     const seen = [];
     products.forEach((p) => { if (p.brand && !seen.includes(p.brand)) seen.push(p.brand); });
     return seen.sort();
   }, [products]);
 
-  // Carries each piece's catalog index through filtering and sorting —
-  // that index is what /product/:id resolves against, so reordering the
-  // grid never changes where a card points.
-  const filtered = useMemo(() => products
-    .map((product, index) => ({ product, index }))
-    .filter(({ product: p }) => {
-      const okCat = !cat || p.category === cat;
+  const filtered = useMemo(() => {
+    const ql = query.toLowerCase();
+    return products.filter((p) => {
+      const okCat = !cat || p.categoryGroup === cat;
       const okTag = !tags.length || tags.some((t) => (p.tags || []).includes(t));
       const okBr = !brands.length || brands.includes(p.brand);
-      const okPr = (p.price || 0) >= lo && (p.price || 0) <= hi;
+      const okPr = (p.price || 0) >= priceMin && (p.price || 0) <= hiPrice;
       const okSale = !saleMode || (p.tags || []).includes('Sale');
-      return okCat && okTag && okBr && okPr && okSale;
-    }), [products, cat, tags, brands, lo, hi, saleMode]);
+      const okQ = !ql || (p.brand + ' ' + p.name + ' ' + (p.category || '') + ' ' + (p.description || '')).toLowerCase().includes(ql);
+      return okCat && okTag && okBr && okPr && okSale && okQ;
+    });
+  }, [products, cat, tags, brands, priceMin, hiPrice, saleMode, query]);
 
-  const visible = useMemo(() => sortProducts(filtered, sort), [filtered, sort]);
-
-  // Keep the choice in the URL so a sorted view can be linked and shared.
-  function changeSort(value) {
-    const next = new URLSearchParams(params);
-    if (value === DEFAULT_SORT) next.delete('sort');
-    else next.set('sort', value);
-    setParams(next, { replace: true });
-  }
+  const sorted = useMemo(() => {
+    const arr = filtered.slice();
+    if (sort === 'price-asc') arr.sort((a, b) => (a.price || 0) - (b.price || 0));
+    else if (sort === 'price-desc') arr.sort((a, b) => (b.price || 0) - (a.price || 0));
+    return arr;
+  }, [filtered, sort]);
 
   useEffect(() => {
-    if (saleMode) document.title = 'Sale — Bougie Edition';
-    else if (dept) document.title = dept.charAt(0).toUpperCase() + dept.slice(1) + ' — Bougie Edition';
+    if (query) document.title = `“${query}” — Bougie Edition`;
+    else if (saleMode) document.title = 'Sale — Bougie Edition';
     else document.title = 'Shop All — Bougie Edition';
-  }, [saleMode, dept]);
+  }, [query, saleMode]);
+
+  const money = (v) => (fmt ? fmt(v) : '$' + Number(v).toLocaleString());
+  const pct = (v) => (priceCap ? (v / priceCap) * 100 : 0);
 
   const activeCount = (cat ? 1 : 0) + tags.length + brands.length + (priceActive ? 1 : 0);
   const summaryParts = [];
   if (cat) summaryParts.push(catLabel(cat));
   if (tags.length) summaryParts.push(tags.length + ' tag' + (tags.length > 1 ? 's' : ''));
   if (brands.length) summaryParts.push(brands.length + ' brand' + (brands.length > 1 ? 's' : ''));
-  if (priceActive) summaryParts.push(`${fmt ? fmt(lo) : '$' + lo}–${fmt ? fmt(hi) : '$' + hi}`);
+  if (priceActive) summaryParts.push(money(priceMin) + '–' + money(hiPrice));
+
+  const clearAll = () => { setCat(''); setTags([]); setBrands([]); setPriceMin(0); setPriceMax(0); };
 
   let heroEyebrow = 'The full edit', heroTitleText = <>Shop <span className="serif-italic">all</span>.</>;
-  let heroLede = "Everything we carry, in one place — for those who prefer to browse the whole edit. Filter by category, mix multiple brands and price ranges to find your piece.";
+  let heroLede = 'Everything we carry, in one place. Filter by category, brand and price, then sort to find your piece.';
   let ctxNote = null;
-  if (saleMode) {
-    heroEyebrow = 'Sale — up to 40% off';
+  if (query) {
+    heroEyebrow = 'Search results';
+    heroTitleText = <>“{query}”</>;
+    heroLede = `${filtered.length} ${filtered.length === 1 ? 'piece' : 'pieces'} matching your search.`;
+  } else if (saleMode) {
+    heroEyebrow = 'Sale — reduced pieces';
     heroTitleText = <>The <span className="serif-italic">sale</span>.</>;
-    heroLede = 'A limited selection of authenticated pieces, now reduced. Combine brands and price ranges to find your edit.';
+    heroLede = 'A limited selection of authenticated pieces, now reduced.';
     ctxNote = 'Sale — reduced pieces only';
-  } else if (dept) {
-    const label = dept.charAt(0).toUpperCase() + dept.slice(1);
-    heroEyebrow = label + ' — the edit';
-    heroTitleText = <>{label}<span className="serif-italic">.</span></>;
-    heroLede = `The ${dept}'s selection — bags, watches and accessories, each sourced and authenticated. Mix multiple brands and price ranges to refine.`;
-    ctxNote = label + '\u2019s edit';
   }
 
   return (
@@ -145,23 +135,36 @@ export default function Shop() {
               ))}
             </div>
             <div className="toolbar-right">
+              <label className="sort-wrap">
+                <span className="sort-label">Sort</span>
+                <select className="sort-select" value={sort} onChange={(e) => setSort(e.target.value)}>
+                  <option value="featured">Featured</option>
+                  <option value="price-asc">Price: low to high</option>
+                  <option value="price-desc">Price: high to low</option>
+                </select>
+              </label>
               <button className={'filters-btn' + (advOpen ? ' open' : '')} aria-expanded={advOpen} onClick={() => setAdvOpen((o) => !o)}>
                 <SlidersHorizontal size={16} /><span>Filters</span>
                 <span className={'fbadge' + (activeCount > 0 ? ' show' : '')}>{activeCount}</span>
               </button>
-              <label className="sort-field">
-                <span className="visually-hidden">Sort pieces by</span>
-                <select className="sort-select" value={sort} onChange={(e) => changeSort(e.target.value)}>
-                  {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </select>
-                <ChevronDown className="sort-caret" size={15} aria-hidden="true" />
-              </label>
-              <span className="count">{filtered.length}{filtered.length === 1 ? ' piece' : ' pieces'}</span>
+              <span className="count">{sorted.length}{sorted.length === 1 ? ' piece' : ' pieces'}</span>
             </div>
           </div>
 
           <div className={'adv-panel' + (advOpen ? ' open' : '')}>
             <div className="adv-inner">
+              <div className="filter-group">
+                <div className="fg-head"><h4>Price</h4><span className="fg-hint">{money(priceMin)} – {money(hiPrice)}{hiPrice >= priceCap ? '+' : ''}</span></div>
+                <div className="price-slider">
+                  <div className="ps-rail"></div>
+                  <div className="ps-fill" style={{ left: pct(priceMin) + '%', right: (100 - pct(hiPrice)) + '%' }}></div>
+                  <input type="range" className="ps-input ps-min" min={0} max={priceCap} step={STEP} value={priceMin}
+                    onChange={(e) => setPriceMin(Math.min(Number(e.target.value), hiPrice))} aria-label="Minimum price" />
+                  <input type="range" className="ps-input ps-max" min={0} max={priceCap} step={STEP} value={hiPrice}
+                    onChange={(e) => setPriceMax(Math.max(Number(e.target.value), priceMin))} aria-label="Maximum price" />
+                </div>
+                <div className="ps-scale"><span>{money(0)}</span><span>{money(priceCap)}+</span></div>
+              </div>
               <div className="filter-group">
                 <div className="fg-head"><h4>Tag</h4><span className="fg-hint">New in, sale &amp; more</span></div>
                 <div className="fchips">
@@ -178,27 +181,17 @@ export default function Shop() {
                   ))}
                 </div>
               </div>
-              <div className="filter-group">
-                <div className="fg-head"><h4>Price</h4><span className="fg-hint">Drag to set a range</span></div>
-                <PriceRange
-                  min={0}
-                  max={priceCeiling}
-                  step={PRICE_STEP}
-                  value={[lo, hi]}
-                  onChange={setPriceRange}
-                />
-              </div>
               <div className="adv-actions">
                 <div className="adv-summary">{summaryParts.length ? <>Filtering by <b>{summaryParts.join(', ')}</b></> : 'Showing all pieces'}</div>
-                <button className="clear-btn" onClick={() => { setCat(''); setTags([]); setBrands([]); setPriceRange(null); }}>Clear all filters</button>
+                <button className="clear-btn" onClick={clearAll}>Clear all filters</button>
               </div>
             </div>
           </div>
 
           <div className="prod-grid" style={{ marginTop: '48px' }}>
-            {visible.map(({ product, index }) => <ProductCard key={index} product={product} index={index} />)}
+            {sorted.map((p) => <ProductCard key={p.brand + p.name} product={p} index={products.indexOf(p)} />)}
           </div>
-          {filtered.length === 0 && <div className="noresults show">No pieces match those filters — try removing a brand or widening the price.</div>}
+          {sorted.length === 0 && <div className="noresults show">{query ? `No pieces match “${query}”.` : 'No pieces match those filters — try widening the price or removing a brand.'}</div>}
         </div>
       </section>
     </>

@@ -7,11 +7,11 @@ import Drops from './pages/Drops';
 import Product from './pages/Product';
 import Order from './pages/Order';
 import Brands from './pages/Brands';
-import About from './pages/About';
 import Consign from './pages/Consign';
 import Sourcing from './pages/Sourcing';
 import Consultation from './pages/Consultation';
 import Authentication from './pages/Authentication';
+import Faq from './pages/Faq';
 import Disclaimer from './pages/Disclaimer';
 
 export default function App() {
@@ -26,11 +26,11 @@ export default function App() {
         <Route path="/product/:id" element={<Product />} />
         <Route path="/order" element={<Order />} />
         <Route path="/brands" element={<Brands />} />
-        <Route path="/about" element={<About />} />
         <Route path="/consign" element={<Consign />} />
         <Route path="/sourcing" element={<Sourcing />} />
         <Route path="/consultation" element={<Consultation />} />
         <Route path="/authentication" element={<Authentication />} />
+        <Route path="/faq" element={<Faq />} />
         <Route path="/disclaimer" element={<Disclaimer />} />
       </Route>
     </Routes>

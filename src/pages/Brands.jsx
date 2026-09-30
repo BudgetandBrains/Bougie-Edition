@@ -28,7 +28,7 @@ export default function Brands() {
           </div>
           <Reveal className="reveal-d2" style={{ alignSelf: 'center' }}>
             <p style={{ fontSize: '1.08rem', lineHeight: 1.7, color: 'var(--stone-500)', maxWidth: '46ch' }}>Every item is independently authenticated and documented before it reaches you. Brand names are used solely to describe the pieces we carry.</p>
-            <div className="mt-sm"><Link className="btn btn-ghost" to="/about" style={{ color: '#fff' }}><span>Our authentication promise</span></Link></div>
+            <div className="mt-sm"><Link className="btn btn-ghost" to="/authentication" style={{ color: '#fff' }}><span>Our authentication promise</span></Link></div>
           </Reveal>
         </div>
       </section>
