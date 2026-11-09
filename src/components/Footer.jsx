@@ -1,4 +1,12 @@
 import { Link } from 'react-router-dom';
+import { INSTAGRAM_URL, WHATSAPP_URL } from '../data/siteConfig';
+
+// Social links fall back to the contact page (never a dead "#") until configured.
+function Social({ url, children }) {
+  return url
+    ? <a href={url} target="_blank" rel="noopener noreferrer">{children}</a>
+    : <Link to="/consultation">{children}</Link>;
+}
 
 export default function Footer() {
   return (
@@ -30,8 +38,8 @@ export default function Footer() {
             <Link to="/disclaimer">Disclaimer</Link>
           </div>
           <div className="foot-col"><h5>Connect</h5>
-            <a href="#">Instagram</a>
-            <a href="#">WhatsApp</a>
+            <Social url={INSTAGRAM_URL}>Instagram</Social>
+            <Social url={WHATSAPP_URL}>WhatsApp</Social>
             <Link to="/order">How to order</Link>
             <Link to="/consultation">Contact</Link>
           </div>

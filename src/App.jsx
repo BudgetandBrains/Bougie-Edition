@@ -13,6 +13,7 @@ import Consultation from './pages/Consultation';
 import Authentication from './pages/Authentication';
 import Faq from './pages/Faq';
 import Disclaimer from './pages/Disclaimer';
+import NotFound from './pages/NotFound';
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="/authentication" element={<Authentication />} />
         <Route path="/faq" element={<Faq />} />
         <Route path="/disclaimer" element={<Disclaimer />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   );

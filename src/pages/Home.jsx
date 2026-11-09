@@ -14,6 +14,8 @@ export default function Home() {
   const { products } = useCatalog();
   const videosWrapRef = useRef(null);
 
+  useEffect(() => { document.title = 'Bougie Edition — Authenticated Luxury, Sourced with Intent'; }, []);
+
   useEffect(() => {
     const wrap = videosWrapRef.current;
     if (!wrap) return;

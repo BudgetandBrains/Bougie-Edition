@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Reveal from '../components/Reveal';
 import Captcha from '../components/Captcha';
+import { submitForm } from '../data/submitForm';
 
 export default function Consign() {
   const [submitted, setSubmitted] = useState(false);
@@ -29,7 +30,7 @@ export default function Consign() {
 
             <Reveal className="reveal-d1">
               {!submitted ? (
-                <form onSubmit={(e) => { e.preventDefault(); if (!human) return; setSubmitted(true); }}>
+                <form onSubmit={async (e) => { e.preventDefault(); if (!human) return; const data = Object.fromEntries(new FormData(e.target).entries()); await submitForm('Consignment', data); setSubmitted(true); }}>
                   <div className="form-grid">
                     <div className="field"><label htmlFor="c-name">Full name</label><input id="c-name" name="name" type="text" required placeholder="Your name" /></div>
                     <div className="field"><label htmlFor="c-email">Email</label><input id="c-email" name="email" type="email" required placeholder="you@email.com" /></div>

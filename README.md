@@ -98,3 +98,24 @@ Leave `IMAGE_ROOT = ''` to stay on option A.
 - `src/styles/` — the design system tokens + site stylesheet, unchanged in spirit from the
   original HTML build.
 - `public/assets/` — logo, product photography, atelier videos, and the CSV template.
+
+## Site configuration (`src/data/siteConfig.js`)
+
+A few things are config, not code:
+
+- **`FORM_ENDPOINT`** — where the Consign / Sourcing / Consultation forms deliver. Create a free
+  form at [formspree.io](https://formspree.io) and paste its endpoint (e.g.
+  `https://formspree.io/f/abcdwxyz`). **Until this is set, forms show a thank-you but nothing is
+  emailed.** `CONTACT_EMAIL` is an optional fallback that opens the visitor's mail app instead.
+- **`INSTAGRAM_URL` / `WHATSAPP_URL`** — footer social links. Blank points them at the contact
+  page instead of a dead link.
+
+## Deployment (Vercel)
+
+`vercel.json` rewrites every path to `index.html` so deep links and refreshes work (a single-page
+app otherwise 404s on any URL but `/`). `public/robots.txt`, `public/sitemap.xml` and
+`public/favicon.svg` are served as-is; SEO/Open-Graph tags live in `index.html`. Production branch
+is `main`.
+
+> Reminder: product **Certificate of Authenticity** links come from the sheet's `COA` column — put
+> the real certificate URL there (not the site homepage) so the button on each product is genuine.
